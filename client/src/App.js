@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import CadastralContract from "./contracts/CadastralContract.json";
-import getWeb3 from "./getWeb3";
 import CreateEstate from "./CreateEstate";
 import NowEstateList from "./NowEstateList";
 import SearchFromChain from "./SearchFromChain";
