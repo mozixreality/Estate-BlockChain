@@ -19,7 +19,7 @@ NextFunctionTable[1] = function (ev,estateList) {
 
 NextFunctionTable[2] = function (ev,estateList) {
     //console.log("merge event!");
-    ev.EstateEvent.from.map((val,i) => {
+    ev.EstateEvent.from.forEach((val,i) => {
         estateList = estateList.filter((obj) => {
             return val.id !== obj.id;
         })
@@ -36,7 +36,7 @@ PreFunctionTable[0] = function (ev,estateList) {
 }
 
 PreFunctionTable[1] = function (ev,estateList) {
-    ev.EstateEvent.to.map((val,i) => {
+    ev.EstateEvent.to.forEach((val,i) => {
         estateList = estateList.filter((obj) => {
             return val.id !== obj.id;
         })

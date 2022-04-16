@@ -11,7 +11,7 @@ function createTree(treeNode,leaves,width,height){
     //             .size([400,400]);
     
     let root = d3.hierarchy(treeNode);
-    //console.log(root);
+    console.log(root);
 }
 
 export default createTree;

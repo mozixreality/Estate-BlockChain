@@ -1,11 +1,8 @@
 import React, { Component } from "react";
-import EstateFormat from "./EstateFormat";
+import EstateFormat from "../components/EstateFormat";
 
 class MergeEstate extends Component{
     state = {web3:null, accounts:null,contract:null,id:[],list:[]};
-    constructor(props){
-        super(props);
-    };
 
     componentDidMount = async () => {
         this.setState({web3:this.props.web3, accounts:this.props.accounts, contract: this.props.contract});
@@ -13,12 +10,12 @@ class MergeEstate extends Component{
 
     merge = async () => {
         console.log("merge!");
-        const {web3,accounts,contract,id,list } = this.state;
+        const {accounts,contract} = this.state;
         let form = document.getElementById("mergeForm")
         let mergedIdList = [];
-        form[0].value.split(",").map((val,k) => {
-            mergedIdList.push(val);
-        })
+        form[0].value.split(",").map((val,k) => (
+            mergedIdList.push(val)
+        ))
         console.log(mergedIdList);
         let formatData = EstateFormat.getMergeForm(form,mergedIdList);
         let fromList = [];

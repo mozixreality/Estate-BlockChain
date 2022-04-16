@@ -1,12 +1,8 @@
 import React, { Component } from "react";
-import EstateFormat from "./EstateFormat";
+import EstateFormat from "../components/EstateFormat";
 
 class SplitEstate extends Component{
     state = {web3:null, accounts:null, contract:null,list:[],id:null};
-
-    constructor(props){
-        super(props);
-    };
 
     componentDidMount = async () => {
         this.setState({web3:this.props.web3, accounts:this.props.accounts, contract: this.props.contract});
@@ -62,7 +58,7 @@ class SplitEstate extends Component{
 
     splitEstate = async () => {
         console.log("split!");
-        const {web3,accounts,contract,id,list } = this.state;
+        const {accounts,contract,id,list } = this.state;
         let formCom = document.getElementById("fund");
         let length = list.length;
         let newIdList = new Array(length);

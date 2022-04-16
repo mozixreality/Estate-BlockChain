@@ -1,10 +1,8 @@
 import React, { Component } from "react";
-import { NextFunctionTable, PreFunctionTable} from "./EventFunctionTable.js";
-import EstateFormat from './EstateFormat.js';
-import createMap from './CadastralMap.js';
-import createTree from './TreeView.js';
-import ReactDOM from "react-dom"
-
+import { NextFunctionTable, PreFunctionTable} from "../components/EventFunctionTable.js";
+import EstateFormat from '../components/EstateFormat.js';
+import createMap from '../components/CadastralMap.js';
+import createTree from '../components/TreeView.js';
 
 class Version extends Component{
     state = {estateList:[],eventList:[],historyEventList:[],date:null,searchItem:null,width:800,height:600,tree:[],leaves:[]};
@@ -15,9 +13,9 @@ class Version extends Component{
     showGraph = (estateList) => {
         const {width,height} = this.state;
         let polyList = [];
-        estateList.map((val,k) => {
-            polyList.push({poly:EstateFormat.getPointFormat(val.polygon),id:val.id});
-        })
+        estateList.map((val,k) => (
+            polyList.push({poly:EstateFormat.getPointFormat(val.polygon),id:val.id})
+        ))
         createMap(height,width,this,polyList);
     }
     d3CLick(id){
@@ -79,7 +77,7 @@ class Version extends Component{
         
         let estateList = [];
         console.log(nowData.length);
-        if(nowData.length==0){
+        if(nowData.length === 0){
             alert("輸入其他日期");
             return;
         }
@@ -98,9 +96,9 @@ class Version extends Component{
         }).then((myjson) => {
             return myjson;
         });
-        eventList.map((val,key) => {
-            val.EstateEvent = JSON.parse(val.EstateEvent);
-        });
+        eventList.map((val,key) => (
+            val.EstateEvent = JSON.parse(val.EstateEvent)
+        ));
 
         let historyEventList =  [];
         date = new Date(date);
@@ -111,7 +109,7 @@ class Version extends Component{
 
     showTreeGraph = (treeNode,leaves) => {
         const {width,height} = this.state;
-       createTree(treeNode,leaves,width,height);
+        createTree(treeNode,leaves,width,height);
     }
     
     generateTree = async (estateList) => {

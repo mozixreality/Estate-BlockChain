@@ -1,8 +1,4 @@
 import React, { Component } from "react";
-// var express = require('express')
-// var multer  = require('multer')
-// var upload = multer({ dest: 'uploads/' })
-// var app = express()
 
 class Update extends Component{
     constructor(props) {
@@ -35,7 +31,7 @@ class Update extends Component{
        const { fileName } = this.state;
        let file = null;
 
-        file = fileName 
+        file === fileName 
             ? ( <span>File Selected - {fileName}</span>) 
             : ( <span>Choose a file...</span> );
 
@@ -46,7 +42,7 @@ class Update extends Component{
               paddingBottom: '20px',
               boxSizing: 'content-box',
             }}>
-              <form action="http://localhost:4001/profile" method="post" enctype="multipart/form-data" method="POST">
+              <form action="http://localhost:4001/profile" enctype="multipart/form-data" method="POST">
                 <label>Estate file(.csv)</label><br />
                 <input type="file" name="avatar" /><br />
                 <label>County</label><br />

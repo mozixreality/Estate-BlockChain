@@ -13,11 +13,11 @@ var EstateFormat = {
         }
         let pointList = new Array(100);
         pointList.fill(["n","n"]);
-        rawPointList.map((ele,key) => {
+        rawPointList.forEach((ele, key) => {
             let ary = new Array(2);
-            ele.map((val,i) => {
-                ary[i] = val.toString();
-            });
+            ele.map((val,i) => (
+                ary[i] = val.toString()
+            ));
             pointList[key] = ary;
         });
         //console.log(pointList)
@@ -93,8 +93,3 @@ var EstateFormat = {
 
 
 export default EstateFormat;
-
-
-
-
-//polygon、event

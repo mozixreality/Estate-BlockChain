@@ -1,19 +1,15 @@
 import React, { Component } from "react";
-import EstateFormat from "./EstateFormat.js";
+import EstateFormat from "../components/EstateFormat.js";
 
 class CreateEstate extends Component{
     state = { web3: null, accounts: null, contract: null };
-    
-    constructor(props) {
-        super(props);
-    };
 
     componentDidMount = async () => {
         this.setState({web3:this.props.web3, accounts:this.props.accounts, contract: this.props.contract});
     };
 
   page = async () => {
-    const { web3, accounts, contract} = this.state;
+    const {accounts, contract} = this.state;
     var form = document.getElementById("createForm");
     let dataForm = EstateFormat.getCreatForm(form);
     let dataObject = dataForm.DFormat;

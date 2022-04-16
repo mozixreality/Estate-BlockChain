@@ -1,12 +1,6 @@
 import React, { Component } from "react";
-import EsTokenContract from "./contracts/EsToken.json";
-
 class SearchFromChain extends Component{
     state = {web3:null, accounts: null, contract:null, estate:null};
-
-    constructor(props) {
-        super(props);
-    };
 
     componentDidMount = async () => {
         this.setState({web3:this.props.web3, accounts:this.props.accounts, contract: this.props.contract});
@@ -14,7 +8,7 @@ class SearchFromChain extends Component{
 
     page = async () => {
         console.log("查詢成功！");
-        const {contract,web3} = this.state;
+        const {contract} = this.state;
         let id = document.getElementById("searchId").value;
         let ret = await contract.methods.getEstateData(id).call();
         this.setState({estate:ret});
