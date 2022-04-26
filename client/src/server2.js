@@ -1,25 +1,29 @@
-const pass = require('./pass');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const csv = require('csv-parser');
-var multer  = require('multer');
+const multer  = require('multer');
 const fetch = require('node-fetch');
 const app = express();
-var upload = multer({ dest: 'uploads/' })
+const upload = multer({ dest: 'uploads/' })
+require('dotenv').config({path: "../.env"})
 
+const CadastralContract  = require('./contracts/CadastralContract.json')
+const Web3 = require('web3');
+const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8546'))
 
-let CadastralContract  = require('./contracts/CadastralContract.json')
-let Web3 = require('web3');
-const { useCallback } = require('react');
-let web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8546'))
+const BackendServerPort = process.env.REACT_APP_BACKEND_SERVER_PORT
+const MySQLHost = process.env.MYSQL_HOST
+const MySQLUser = process.env.MYSQL_USER
+const MySQLPassword = process.env.MYSQL_PASSWORD
+const MySQLDatabase = process.env.MYSQL_DATABASE
 
 const con = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'your_password',
-  database: 'blockchaindata'
+  host: MySQLHost,
+  user: MySQLUser,
+  password: MySQLPassword,
+  database: MySQLDatabase
 });
 var buffer = "";
 
@@ -297,8 +301,8 @@ app.post('/profile', upload.single('avatar'), function (req, res, next) {
   
 asyncCall();
 
-app.listen(4001,() => {
-  console.log("listen 4001!");
+app.listen(BackendServerPort,() => {
+  console.log("listen " + BackendServerPort + "!");
 });
 
 module.exports = {buffer};

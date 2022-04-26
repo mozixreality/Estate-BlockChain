@@ -2,17 +2,27 @@ import React, { Component } from "react";
 import EstateFormat from '../components/EstateFormat.js';
 import createMap from '../components/CadastralMap.js';
 
+import { Context } from "../Context";
 
 class NowEstateList extends Component {
+
+    static contextType = Context
 
     constructor(props){
         super(props);
 
-        this.state = { nowEstateList:[],path:null,searchItem:null,width:800,height:600};
+        this.state = { 
+            nowEstateList:[],
+            path:null,
+            searchItem:null,
+            width:800,
+            height:600
+        };
     }
 
-    componentDidMount = async () => {          
-        let nowList = await fetch("http://localhost:4001/getNowEstate").then((response) => {
+    componentDidMount = async () => {   
+        const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
+        let nowList = await fetch(backendServer + "/getNowEstate").then((response) => {
             return response.json();
         }).then((myjson) => {
             return myjson;

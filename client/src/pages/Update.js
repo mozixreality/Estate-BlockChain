@@ -42,7 +42,7 @@ class Update extends Component{
               paddingBottom: '20px',
               boxSizing: 'content-box',
             }}>
-              <form action="http://localhost:4001/profile" enctype="multipart/form-data" method="POST">
+              <form action="http://localhost:4001/profile" encrtype="multipart/form-data" method="POST">
                 <label>Estate file(.csv)</label><br />
                 <input type="file" name="avatar" /><br />
                 <label>County</label><br />

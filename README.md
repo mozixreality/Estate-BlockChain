@@ -5,7 +5,6 @@
 npm install --force
 ```
 > If you facing the problem that **Create React App requires a dependency: "babel-loader": "8.1.0"**. Try to create a **.env** file in your client directory and add **SKIP_PREFLIGHT_CHECK=true** in it. Then restart your react server
-2. xxx
 
 ## Geth Tips
 ### Command Introduce
@@ -19,6 +18,7 @@ geth --datadir ./data init genesis.json
 2. start your private chain
 ```bash
 geth --datadir ./data --networkid 20220411 
+	--ws --wsport 8546 --wsorigins "*"
 	--rpc --rpccorsdomain "*" --nodiscover 
 	--rpcapi="eth,web3,net,personal,admin,txpool,miner,db,personal" 
 	console

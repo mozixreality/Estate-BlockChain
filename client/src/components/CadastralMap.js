@@ -20,20 +20,20 @@ function createMap(height,width,that,polyList){
     let zoom = d3.zoom()
                 .scaleExtent([0.3,8])
                 .on("zoom",zoomed);
-    const yScale = d3.scaleLinear()
-                .domain([0, 100])
-                .range([height, 0]) 
+    // const yScale = d3.scaleLinear()
+    //             .domain([0, 100])
+    //             .range([height, 0]) 
     if(d3.select("svg")){
         d3.select("svg").remove();
     }
     //
     
-    let svg = d3.select("#esSvg").append("svg")
-                                 .attr("width",width)
-                                 .attr("height",height)
-                                 .attr("viewBox",[400,-900,width,height])
-                                 .attr("style", "outline: 3px solid black;");
-                                //  .attr("viewBox",[0,0,width,height])
+    // let svg = d3.select("#esSvg").append("svg")
+    //                              .attr("width",width)
+    //                              .attr("height",height)
+    //                              .attr("viewBox",[400,-900,width,height])
+    //                              .attr("style", "outline: 3px solid black;");
+    //                             //  .attr("viewBox",[0,0,width,height])
     let drag = d3.drag()  
         .on('start', function(){
             mouseX = d3.event.sourceEvent.clientX;
@@ -62,7 +62,7 @@ function createMap(height,width,that,polyList){
     //   });
     
     let g = d3.select("svg").append("g");
-    polyList.map((val,k) => {
+    polyList.forEach((val,k) => {
         createGraph(val.poly,val.id,g);
     })
     g.selectAll("polygon").on("click", function(d) {
@@ -80,7 +80,7 @@ function createMap(height,width,that,polyList){
 
 function createGraph(val,id,g){
     let str = "";
-    val.map((d,i) => {
+    val.forEach((d,i) => {
         str += d.x + ',' + d.y + ' ';
     });
 
