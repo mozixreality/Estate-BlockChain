@@ -155,6 +155,7 @@
 19:20:44.162895 db@open done T·22.54376ms
 19:30:54.979967 db@close closing
 19:30:54.980284 db@close done T·306.137µs
+<<<<<<< HEAD
 =============== Apr 26, 2022 (CST) ===============
 19:33:33.036708 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
 19:33:33.036948 version@stat F·[3 1] S·1KiB[723B 633B] Sc·[0.75 0.00]
@@ -188,3 +189,5 @@
 20:08:27.053131 db@open done T·14.433087ms
 20:16:28.975147 db@close closing
 20:16:28.975304 db@close done T·152.952µs
+=======
+>>>>>>> e3d53aed1ada1e24328b7fb470fd8a3dc7d7667a
