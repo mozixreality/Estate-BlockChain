@@ -191,3 +191,11 @@
 20:16:28.975304 db@close done T·152.952µs
 =======
 >>>>>>> e3d53aed1ada1e24328b7fb470fd8a3dc7d7667a
+=============== Apr 27, 2022 (CST) ===============
+12:03:16.230525 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+12:03:16.230626 CURRENT: corrupted content: "<<<<<<< HEAD\nMANIFEST-000045\n=======\nMANIFEST-000038\n>>>>>>> e3d53aed1ada1e24328b7fb470fd8a3dc7d7667a\n"
+12:03:16.230674 CURRENT.bak: corrupted content: "<<<<<<< HEAD\nMANIFEST-000041\n=======\nMANIFEST-000035\n>>>>>>> e3d53aed1ada1e24328b7fb470fd8a3dc7d7667a\n"
+=============== Apr 27, 2022 (CST) ===============
+12:03:51.245065 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+12:03:51.245248 CURRENT: corrupted content: "<<<<<<< HEAD\nMANIFEST-000045\n=======\nMANIFEST-000038\n>>>>>>> e3d53aed1ada1e24328b7fb470fd8a3dc7d7667a\n"
+12:03:51.245291 CURRENT.bak: corrupted content: "<<<<<<< HEAD\nMANIFEST-000041\n=======\nMANIFEST-000035\n>>>>>>> e3d53aed1ada1e24328b7fb470fd8a3dc7d7667a\n"
