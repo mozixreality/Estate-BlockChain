@@ -4,6 +4,7 @@ SHELL := /bin/bash
 
 BLOCK_DATA=data
 NETWORK_ID=20220411 
+ACCOUNT_PASSWD=Abcd1234
 
 help:
 	@echo "make init: create a new private chain"
@@ -19,7 +20,7 @@ new-account:
 ifdef passwd
 	geth account new --password <(echo $(passwd))
 else
-	@echo "make new-account passwd=<your passwd>"
+	geth account new --password <(echo $(ACCOUNT_PASSWD))
 endif
 
 start-geth:
@@ -27,7 +28,7 @@ start-geth:
 	--ws --wsport 8546 --wsorigins "*" \
 	--rpc --rpccorsdomain "*" --nodiscover \
 	--rpcapi="eth,web3,net,personal,admin,txpool,miner,db,personal" \
-	--unlock "0" --password <(echo Abcd1234) \
+	--unlock "0" --password <(echo $(ACCOUNT_PASSWD)) \
 	console
 
 start-frontend:
