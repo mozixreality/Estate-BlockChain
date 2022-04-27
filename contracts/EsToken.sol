@@ -11,7 +11,7 @@ contract EsToken {
     string [] parents;
     string [] children;
 
-    constructor(string memory id,Data memory d,Polygon memory poly,string [] memory pa) public{
+    constructor(string memory id,Data memory d,Polygon memory poly,string [] memory pa) {
         data.pcno = d.pcno;
         data.scno = d.scno;
         data.pmno = d.pmno;

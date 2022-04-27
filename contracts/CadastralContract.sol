@@ -14,7 +14,7 @@ contract CadastralContract{
     string [] temp;
     uint tes;
 
-    constructor() public{
+    constructor() {
         esCount = 0;
         totalCount = 0;
         flag = 0;
