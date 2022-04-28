@@ -34,7 +34,7 @@ class NowEstateList extends Component {
         nowList.map((val,k) => (
             polyList.push({poly:EstateFormat.getPointFormat(val.polygon),id:val.id})
         ))
-        //console.log(polyList);
+        // console.log(polyList);
         //畫圖//in cadastral資料夾
         createMap(600,800,this,polyList);
         //App();

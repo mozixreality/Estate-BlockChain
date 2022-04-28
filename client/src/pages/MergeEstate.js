@@ -1,7 +1,12 @@
 import React, { Component } from "react";
 import EstateFormat from "../components/EstateFormat";
 
+import { Context } from "../Context";
+
 class MergeEstate extends Component{
+
+    static contextType = Context
+    
     state = {web3:null, accounts:null,contract:null,id:[],list:[]};
 
     componentDidMount = async () => {
@@ -9,6 +14,7 @@ class MergeEstate extends Component{
     }
 
     merge = async () => {
+        const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
         console.log("merge!");
         const {accounts,contract} = this.state;
         let form = document.getElementById("mergeForm")
@@ -22,7 +28,7 @@ class MergeEstate extends Component{
         let oldDataList = [];
         let date = formatData.DFormat.json.data.endDate;
         for(let i = 0;i < mergedIdList.length;i++){
-            let data = await fetch(`http://localhost:4001/getOne?id=${mergedIdList[i]}`).then((response) => {
+            let data = await fetch(backendServer + `/getOne?id=${mergedIdList[i]}`).then((response) => {
                 return response.json();
             }).then((myjson) => {
                 return myjson;

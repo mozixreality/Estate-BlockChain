@@ -29,6 +29,7 @@ start-geth:
 	--rpc --rpccorsdomain "*" --nodiscover \
 	--rpcapi="eth,web3,net,personal,admin,txpool,miner,db,personal" \
 	--unlock "0" --password <(echo $(ACCOUNT_PASSWD)) \
+	--miner.gasprice '0' \
 	console
 
 start-frontend:
