@@ -28,12 +28,12 @@ function createMap(height,width,that,polyList){
     }
     //
     
-    // let svg = d3.select("#esSvg").append("svg")
-    //                              .attr("width",width)
-    //                              .attr("height",height)
-    //                              .attr("viewBox",[400,-900,width,height])
-    //                              .attr("style", "outline: 3px solid black;");
-    //                             //  .attr("viewBox",[0,0,width,height])
+    d3.select("#esSvg").append("svg")
+                                 .attr("width",width)
+                                 .attr("height",height)
+                                 .attr("viewBox",[400,-900,width,height])
+                                 .attr("style", "outline: 3px solid black;");
+                                //  .attr("viewBox",[0,0,width,height])
     let drag = d3.drag()  
         .on('start', function(){
             mouseX = d3.event.sourceEvent.clientX;
@@ -54,12 +54,12 @@ function createMap(height,width,that,polyList){
         });
     d3.select("svg").call(drag);
     d3.select("svg").call(zoom);
-    // d3.select("svg") ///select the svg
-    //   .classed("rotate", function(){
-    //     return !d3.select(this).classed("rotate");
-    //       //check whether it is currently rotated
-    //       //and set it to the opposite
-    //   });
+    d3.select("svg") ///select the svg
+      .classed("rotate", function(){
+        return !d3.select(this).classed("rotate");
+          //check whether it is currently rotated
+          //and set it to the opposite
+      });
     
     let g = d3.select("svg").append("g");
     polyList.forEach((val,k) => {
