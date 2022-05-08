@@ -43,9 +43,9 @@ async function asyncCall() {
     CadastralContract.abi,
     deployedNetwork && deployedNetwork.address,
   )
+
   myContract.events.allEvents()
   .on('data', async(event) => {
-    //console.log(event);
     switch(event.event) {
       case "eventCreate":
         create(event);
@@ -102,10 +102,7 @@ async function create(blockdata) {
       if (err) throw err;
       console.log(event.returnValues.Id);
       console.log("insert to nowestate sucess");
-      let tracsctionId = event.transactionHash;
-      fetch('http://localhost:9000/node01/write/event/create/'+ event.returnValues.Id+'/'+ tracsctionId, {
-        credentials: 'omit'
-      })
+      // let tracsctionId = event.transactionHash;
   })
 }
 

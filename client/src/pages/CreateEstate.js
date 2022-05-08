@@ -5,7 +5,11 @@ class CreateEstate extends Component{
     state = { web3: null, accounts: null, contract: null };
 
     componentDidMount = async () => {
-        this.setState({web3:this.props.web3, accounts:this.props.accounts, contract: this.props.contract});
+        this.setState({
+            web3: this.props.web3, 
+            accounts: this.props.accounts, 
+            contract: this.props.contract
+        });
     };
 
   page = async () => {
@@ -20,18 +24,19 @@ class CreateEstate extends Component{
     eventData = JSON.stringify(eventData);
     //console.log(dataObject.id,dataObject.blockChain,dataForm.PFormat.blockChain,[],0,eventData,[])
     console.log("create!");
-    await contract.methods.create(dataObject.id,dataObject.blockChain,dataForm.PFormat.blockChain,[],0,eventData,[]).send({ from:accounts[0]});
+    await contract.methods.create(dataObject.id,dataObject.blockChain,dataForm.PFormat.blockChain,[],0,eventData,[]).send({ 
+        from: accounts[0],
+        gas: 100000000
+    }, function(error, transactionHash){
+        console.log(error, transactionHash)
+      }).on('error', function(error){
+        console.log(error)
+      }).on('transactionHash', function(transactionHash){
+        console.log(transactionHash)
+      }).on('receipt', function(receipt){
+        console.log("YA", receipt) // contains the new contract address
+      });
     console.log("success");
-    for(let i = 1;i<500;i++){
-        // setTimeout(function(){
-        //     ;
-        // }, 2000);
-        let num = i
-        let str = num.toString().padStart(4, "0")
-        let tempId = str+str+str+form[5].value;
-        await contract.methods.create(tempId,dataObject.blockChain,dataForm.PFormat.blockChain,[],0,eventData,[]).send({ from:accounts[0]});
-        console.log("success");
-    }
   };
 
 

@@ -18,9 +18,9 @@ function createMap(height,width,that,polyList){
     let dragFlag = 0;
     let tmpObj = null;
     let zoom = d3.zoom()
-                .scaleExtent([0.3,8])
-                .on("zoom",zoomed);
-    // const yScale = d3.scaleLinear()
+        .scaleExtent([0.3,8])
+        .on("zoom",zoomed);
+// const yScale = d3.scaleLinear()
     //             .domain([0, 100])
     //             .range([height, 0]) 
     if(d3.select("svg")){
@@ -29,11 +29,11 @@ function createMap(height,width,that,polyList){
     //
     
     d3.select("#esSvg").append("svg")
-                                 .attr("width",width)
-                                 .attr("height",height)
-                                 .attr("viewBox",[400,-900,width,height])
-                                 .attr("style", "outline: 3px solid black;");
-                                //  .attr("viewBox",[0,0,width,height])
+        .attr("width",width)
+        .attr("height",height)
+        .attr("viewBox",[400,-900,width,height])
+        .attr("style", "outline: 3px solid black;");
+    //  .attr("viewBox",[0,0,width,height])
     let drag = d3.drag()  
         .on('start', function(){
             mouseX = d3.event.sourceEvent.clientX;
