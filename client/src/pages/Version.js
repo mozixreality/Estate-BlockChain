@@ -4,11 +4,12 @@ import EstateFormat from '../components/EstateFormat.js';
 import createMap from '../components/CadastralMap.js';
 import createTree from '../components/TreeView.js';
 
+import { Context } from "../Context";
+
 class Version extends Component{
     state = {estateList:[],eventList:[],historyEventList:[],date:null,searchItem:null,width:800,height:600,tree:[],leaves:[]};
     
-    componentDidMount = async () => {
-    }
+    static contextType = Context
 
     showGraph = (estateList) => {
         const {width,height} = this.state;
@@ -63,13 +64,14 @@ class Version extends Component{
         let date = document.getElementById("dataSearch").value;
         date = date.slice(0,4) + "-" + date.slice(4,6) + "-" + date.slice(6,8);
         //抓現在還在的地籍資料
-        let nowData = await fetch(`http://localhost:4001/searchFromNow?date=${date}`).then((response) => {
+        const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
+        let nowData = await fetch(backendServer + `/searchFromNow?date=${date}`).then((response) => {
             return response.json();
         }).then((myjson) => {
             return myjson;
         });
         //抓該日期舊有地籍資料
-        let oldData = await fetch(`http://localhost:4001/searchFromOld?date=${date}`).then((response) => {
+        let oldData = await fetch(backendServer + `/searchFromOld?date=${date}`).then((response) => {
             return response.json();
         }).then((myjson) => {
             return myjson;
@@ -91,7 +93,7 @@ class Version extends Component{
             estateList.push(JSON.parse(oldData[i].EstateData));
         }
 
-        let eventList = await fetch(`http://localhost:4001/searchFromEvent?date=${date}`).then((response) => {
+        let eventList = await fetch(backendServer + `/searchFromEvent?date=${date}`).then((response) => {
             return response.json();
         }).then((myjson) => {
             return myjson;
@@ -133,8 +135,9 @@ class Version extends Component{
             let tmpList = [];
             let children = estateList[i].data.children;
             //console.log(children);
+            const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
             for(let j = 0;j < children.length;j++){
-                let es = await fetch(`http://localhost:4001/searchUniverse?id=${children[j]}`).then((response) => {
+                let es = await fetch(backendServer + `/searchUniverse?id=${children[j]}`).then((response) => {
                     return response.json();
                 }).then((myjson) => {
                     return myjson;

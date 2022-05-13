@@ -1,8 +1,12 @@
 import React, { Component } from "react";
 import EstateFormat from "../components/EstateFormat";
 
+import { Context } from "../Context";
+
 class SplitEstate extends Component{
     state = {web3:null, accounts:null, contract:null,list:[],id:null};
+
+    static contextType = Context
 
     componentDidMount = async () => {
         this.setState({web3:this.props.web3, accounts:this.props.accounts, contract: this.props.contract});
@@ -57,7 +61,6 @@ class SplitEstate extends Component{
     };
 
     splitEstate = async () => {
-        console.log("split!");
         const {accounts,contract,id,list } = this.state;
         let formCom = document.getElementById("fund");
         let length = list.length;
@@ -75,7 +78,8 @@ class SplitEstate extends Component{
             polygonList.push(dataFormat.PFormat.blockChain);
         }
     
-        let data = await fetch(`http://localhost:4001/getOne?id=${id}`).then((response) => {
+        const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
+        let data = await fetch(backendServer + `/getOne?id=${id}`).then((response) => {
             return response.json();
         }).then((myjson) => {
             return myjson;
@@ -89,11 +93,18 @@ class SplitEstate extends Component{
         let fromList = new Array(1);
         fromList[0] = data1;
         data = JSON.stringify(data1);
-        await contract.methods.delete2(data1.id,data1.data.begDate,data1.data.endDate,JSON.stringify(data1)).send({from:accounts[0]});
+        await contract.methods.deleteEst(data1.id,data1.data.begDate,data1.data.endDate,JSON.stringify(data1)).send({
+            from: accounts[0],
+            gas: 100000000
+        });
         console.log(data1.id)
         let eventData = EstateFormat.getEventFormat(fromList,newDataList.sql,1,date);          
         eventData = JSON.stringify(eventData);
-        await contract.methods.split([id],newIdList,newDataList.blockChain,polygonList,length,1,eventData).send({from:accounts[0]});
+        await contract.methods.split([id],newIdList,newDataList.blockChain,polygonList,length,1,eventData).send({
+            from:accounts[0],
+            gas: 100000000
+        });
+        console.log("split!");
     }
 
     render(){

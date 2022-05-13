@@ -15,7 +15,6 @@ class MergeEstate extends Component{
 
     merge = async () => {
         const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
-        console.log("merge!");
         const {accounts,contract} = this.state;
         let form = document.getElementById("mergeForm")
         let mergedIdList = [];
@@ -39,14 +38,20 @@ class MergeEstate extends Component{
             data1.data.children = [formatData.DFormat.id];
             fromList.push(data1);
             oldDataList.push(JSON.stringify(data1));
-            await contract.methods.delete2(data1.id,data1.data.begDate,data1.data.endDate,JSON.stringify(data1)).send({from:accounts[0]});
+            await contract.methods.deleteEst(data1.id,data1.data.begDate,data1.data.endDate,JSON.stringify(data1)).send({
+                from:accounts[0],
+                gas: 100000000
+            });
         }
 
         let eventData = EstateFormat.getEventFormat(fromList,[formatData.DFormat.json],2,date);          
         eventData = JSON.stringify(eventData);
         console.log(mergedIdList);
-        await contract.methods.merge(mergedIdList,formatData.DFormat.id,formatData.DFormat.blockChain,formatData.PFormat.blockChain,mergedIdList.length,2,eventData).send({from:accounts[0]});
-
+        await contract.methods.merge(mergedIdList,formatData.DFormat.id,formatData.DFormat.blockChain,formatData.PFormat.blockChain,mergedIdList.length,2,eventData).send({
+            from:accounts[0],
+            gas: 100000000
+        });
+        console.log("merge!");
     }
 
     render () {
