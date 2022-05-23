@@ -1,3 +1,5 @@
+import {createRequire} from 'module';
+const require = createRequire(import.meta.url);
 const mysql = require('mysql2');
 const express = require('express');
 const cors = require('cors');
@@ -7,6 +9,7 @@ const multer  = require('multer');
 const fetch = require('node-fetch');
 const app = express();
 const upload = multer({ dest: 'uploads/' })
+import sendKafkaMsg from "./kafka/producer.js";
 require('dotenv').config({path: "../.env"})
 
 const CadastralContract  = require('./contracts/CadastralContract.json')
@@ -46,6 +49,7 @@ async function asyncCall() {
 
   myContract.events.allEvents()
   .on('data', async(event) => {
+    sendKafkaMsg(['hey 123']);
     switch(event.event) {
       case "eventCreate":
         create(event);
@@ -302,5 +306,4 @@ app.listen(BackendServerPort,() => {
   console.log("listen " + BackendServerPort + "!");
 });
 
-module.exports = {buffer};
 

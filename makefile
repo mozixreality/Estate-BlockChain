@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-.PHONY: help init new-account start-geth start-frontend start-backend
+.PHONY: help init new-account start-geth start-frontend start-backend start-zookeeper start-kafka
 .DEFAULT: help
 
 BLOCK_DATA=data
@@ -12,6 +12,8 @@ help:
 	@echo "make start-geth: start your private chain"
 	@echo "make start-frontend: start your frontend server"
 	@echo "make start-backend: start your backend server"
+	@echo "make start-zookeeper: start zookeeper server"
+	@echo "make start-kafka: start kafka server"
 
 init:
 	geth --datadir $(BLOCK_DATA) init genesis.json
@@ -32,8 +34,14 @@ start-geth:
 	--miner.gasprice '0' \
 	console
 
+start-backend:
+	cd client/src && node server2.js
+
 start-frontend:
 	cd client && npm start
 
-start-backend:
-	cd client/src && node server2.js
+start-zookeeper:
+	~/kafka/bin/zookeeper-server-start.sh ~/kafka/config/zookeeper.properties
+
+start-kafka:
+	~/kafka/bin/kafka-server-start.sh ~/kafka/config/server.properties
