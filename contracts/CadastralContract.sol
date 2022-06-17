@@ -23,70 +23,89 @@ contract CadastralContract{
     event eventSplit(
         string [] parentId,
         string [] childId,
-        string changeDate
+        string changeDate,
+        uint entityId,
+        string entityType
     );
 
     event eventCreate(
-        string Id,
-        string createDate,
-        string endDate,
-        string county,
-        uint townShip,
-        uint reason,
-        uint changedTag,
-        Point [100] pList,
-        uint numOfPoint,
-        uint functional,
-        string eventdata,
-        string [] other
+        EventCreateParam param,
+        uint entityId,
+        string entityType
     );
 
     event eventMerge(
         string childId,
         string [] parentId,
-        string changeDate
+        string changeDate,
+        uint entityId,
+        string entityType
     );
 
     event eventDelete(
         string Id,
         string begDate,
         string endDate,
-        string data
+        string data,
+        uint entityId,
+        string entityType
     );
 
     function create(
-        string memory id,
-        Data memory data,
-        Polygon memory poly,
-        string [] memory pa,
-        uint functional,
-        string memory eventdata,
-        string [] memory other
+        FunctionCreateParam memory param,
+        uint entityId,
+        string calldata entityType
     ) 
         public  
         payable
     {
-        EsToken estate = new EsToken(id,data,poly,pa);
-        nowEstateList[id] = estate;
+        EsToken estate = new EsToken(param.id, param.data, param.poly, param.pa);
+        nowEstateList[param.id] = estate;
         esCount += 1;
         totalCount += 1;
         if(flag == 0){
-            emit eventCreate(id,data.begDate,data.endDate,data.county,data.townShip,data.reason,data.changeTag,poly.pList,poly.numOfPoint,functional,eventdata,other);
+            emit eventCreate(
+                EventCreateParam(
+                    param.id,
+                    param.data.begDate,
+                    param.data.endDate,
+                    param.data.county,
+                    param.data.townShip,
+                    param.data.reason,
+                    param.data.changeTag,
+                    param.poly.pList,
+                    param.poly.numOfPoint,
+                    param.functional,
+                    param.eventdata,
+                    param.other
+                ),
+                entityId,
+                entityType
+            );
         }
     }
 
 
     function deleteEst(
-        string memory Id,
+        string memory id,
         string memory begDate,
         string memory endDate,
-        string memory data
+        string memory data,
+        uint entityId,
+        string calldata entityType
     ) 
         public
         payable
     {
         esCount -=1;
-        emit eventDelete(Id,begDate,endDate,data);
+        emit eventDelete(
+            id, 
+            begDate, 
+            endDate,
+            data, 
+            entityId,
+            entityType
+        );
     }
 
 
@@ -97,7 +116,9 @@ contract CadastralContract{
         Polygon [] memory polygonList,
         uint numOfnewEstate,
         uint functional,
-        string memory eventdata
+        string memory eventdata,
+        uint entityId,
+        string calldata entityType
     )
         public
         payable
@@ -107,10 +128,28 @@ contract CadastralContract{
         estate.setChildren(newIdList);
 
         for(uint i = 0;i < numOfnewEstate;i++){
-            create(newIdList[i],newDataList[i],polygonList[i],temp,functional,eventdata,sId);
+            create(
+                FunctionCreateParam(
+                    newIdList[i], 
+                    newDataList[i], 
+                    polygonList[i], 
+                    temp, 
+                    functional, 
+                    eventdata, 
+                    sId
+                ),
+                entityId,
+                entityType
+            );
         }
 
-        emit eventSplit(sId,newIdList,newDataList[0].begDate);
+        emit eventSplit(
+            sId,
+            newIdList,
+            newDataList[0].begDate,
+            entityId,
+            entityType    
+        );
     }
 
     function merge(
@@ -120,7 +159,9 @@ contract CadastralContract{
         Polygon memory polygon,
         uint numOfMergeEstate,
         uint functional,
-        string memory eventdata
+        string memory eventdata,
+        uint entityId,
+        string calldata entityType
     ) 
         public
         payable
@@ -132,8 +173,26 @@ contract CadastralContract{
             estate.setEndDate(data.begDate);
             estate.setChildren(temp);
         }
-        create(newId,data,polygon,mIdList,functional,eventdata,mIdList);
-        emit eventMerge(newId,mIdList,data.begDate);
+        create(
+            FunctionCreateParam(
+                newId, 
+                data, 
+                polygon, 
+                mIdList, 
+                functional, 
+                eventdata, 
+                mIdList
+            ),
+            entityId,
+            entityType
+        );
+        emit eventMerge(
+            newId,
+            mIdList,
+            data.begDate,
+            entityId,
+            entityType    
+        );
     }
 
     // function getEstateAddress(string memory id) public view returns(address){

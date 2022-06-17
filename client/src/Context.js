@@ -16,6 +16,11 @@ class ContextProvider extends React.Component {
                 value={{
                     BackendServer: this.state.BackendServer,
                     BackendServerPort: this.state.BackendServerPort,
+                    Entity: {
+                        Create: "Create",
+                        Merge: "Merge",
+                        Splite: "Splite",
+                    },
                 }}
             >
                 {this.props.children}

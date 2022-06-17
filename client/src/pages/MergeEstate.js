@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import EstateFormat from "../components/EstateFormat";
-
 import { Context } from "../Context";
 
 class MergeEstate extends Component{
@@ -26,6 +25,12 @@ class MergeEstate extends Component{
         let fromList = [];
         let oldDataList = [];
         let date = formatData.DFormat.json.data.endDate;
+
+        var entityID = 0
+        await fetch(backendServer + `/entity_id?entity_type=${this.context.Entity.Merge}`)
+        .then(response => response.json())
+        .then(json => entityID = json.insertId)
+
         for(let i = 0;i < mergedIdList.length;i++){
             let data = await fetch(backendServer + `/getOne?id=${mergedIdList[i]}`).then((response) => {
                 return response.json();
@@ -38,7 +43,15 @@ class MergeEstate extends Component{
             data1.data.children = [formatData.DFormat.id];
             fromList.push(data1);
             oldDataList.push(JSON.stringify(data1));
-            await contract.methods.deleteEst(data1.id,data1.data.begDate,data1.data.endDate,JSON.stringify(data1)).send({
+
+            await contract.methods.deleteEst(
+                data1.id,
+                data1.data.begDate,
+                data1.data.endDate,
+                JSON.stringify(data1),
+                entityID,
+                this.context.Entity.Merge
+            ).send({
                 from:accounts[0],
                 gas: 100000000
             });
@@ -47,7 +60,18 @@ class MergeEstate extends Component{
         let eventData = EstateFormat.getEventFormat(fromList,[formatData.DFormat.json],2,date);          
         eventData = JSON.stringify(eventData);
         console.log(mergedIdList);
-        await contract.methods.merge(mergedIdList,formatData.DFormat.id,formatData.DFormat.blockChain,formatData.PFormat.blockChain,mergedIdList.length,2,eventData).send({
+        
+        await contract.methods.merge(
+            mergedIdList,
+            formatData.DFormat.id,
+            formatData.DFormat.blockChain,
+            formatData.PFormat.blockChain,
+            mergedIdList.length,
+            2,
+            eventData,
+            entityID,
+            this.context.Entity.Merge
+        ).send({
             from:accounts[0],
             gas: 100000000
         });

@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import EstateFormat from "../components/EstateFormat";
-
 import { Context } from "../Context";
 
 class SplitEstate extends Component{
@@ -93,14 +92,38 @@ class SplitEstate extends Component{
         let fromList = new Array(1);
         fromList[0] = data1;
         data = JSON.stringify(data1);
-        await contract.methods.deleteEst(data1.id,data1.data.begDate,data1.data.endDate,JSON.stringify(data1)).send({
+
+        var entityID = 0
+        await fetch(backendServer + `/entity_id?entity_type=${this.context.Entity.Splite}`)
+        .then(response => response.json())
+        .then(json => entityID = json.insertId)
+
+        await contract.methods.deleteEst(
+            data1.id,
+            data1.data.begDate,
+            data1.data.endDate,
+            JSON.stringify(data1),
+            entityID,
+            this.context.Entity.Splite,
+        ).send({
             from: accounts[0],
             gas: 100000000
         });
         console.log(data1.id)
         let eventData = EstateFormat.getEventFormat(fromList,newDataList.sql,1,date);          
         eventData = JSON.stringify(eventData);
-        await contract.methods.split([id],newIdList,newDataList.blockChain,polygonList,length,1,eventData).send({
+
+        await contract.methods.split(
+            [id],
+            newIdList,
+            newDataList.blockChain,
+            polygonList,
+            length,
+            1,
+            eventData,
+            entityID,
+            this.context.Entity.Splite,
+        ).send({
             from:accounts[0],
             gas: 100000000
         });

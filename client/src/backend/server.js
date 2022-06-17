@@ -8,11 +8,11 @@ const csv = require('csv-parser');
 const multer  = require('multer');
 const fetch = require('node-fetch');
 const app = express();
-const upload = multer({ dest: 'uploads/' })
-import sendKafkaMsg from "./kafka/producer.js";
-require('dotenv').config({path: "../.env"})
+const upload = multer({ dest: '../uploads/' })
+import sendKafkaMsg from "../kafka/producer.js";
+require('dotenv').config({path: "../../.env"})
 
-const CadastralContract  = require('./contracts/CadastralContract.json')
+const CadastralContract  = require('../contracts/CadastralContract.json')
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8546'))
 
@@ -28,7 +28,6 @@ const con = mysql.createConnection({
   password: MySQLPassword,
   database: MySQLDatabase
 });
-var buffer = "";
 
 con.connect(function(err){
   if(err) throw err;
@@ -54,34 +53,59 @@ async function asyncCall() {
       case "eventCreate":
         create(event);
         insertCreateEvent(event);
+        addEvent(event, "Create");
         break;
       case "eventDelete":
         old(event);
         deleteFromDB(event);
+        addEvent(event, "Delete");
         break;
       case "eventMerge":
         merge(event);
+        addEvent(event, "Merge");
         break;
       case "eventSplit":
         split(event);
+        addEvent(event, "Split");
         break;
       default:
-        console.log("hello");
+        console.log("something go error ...");
     }
   })
   .on('error', console.error);
 }
 
+async function addEvent(event, eventType) {
+  const QUERY = `
+    INSERT INTO event_list (
+      event_type,
+      entity_id,
+      entity_type,
+      event_data
+    ) VALUES (
+      '${eventType}',
+      ${event.returnValues.entityId},
+      '${event.returnValues.entityType}',
+      '${JSON.stringify(event)}'
+    );
+  `
+
+  con.query(QUERY, function(err,res) {
+    if (err) throw err;
+    console.log("insert into event list sucess");
+  })
+}
+
 async function insertCreateEvent(blockdata){
   let event = blockdata;
-  let date = event.returnValues.createDate;
+  let date = event.returnValues.param.createDate;
   date = date.slice(0,4) + '-' + date.slice(4,6) + '-' + date.slice(6,8);
   const INSERT_EVENT_QUERY = `
     INSERT INTO eventtable (EstateId, ChangeDate, ChangeReason, EstateEvent) VALUES (
-      '${event.returnValues.Id}',
+      '${event.returnValues.param.Id}',
       '${date}',
-      ${event.returnValues.functional},
-      '${event.returnValues.eventdata}'
+      ${event.returnValues.param.functional},
+      '${event.returnValues.param.eventdata}'
     )`;
   con.query(INSERT_EVENT_QUERY,
     function(err,res){
@@ -92,25 +116,25 @@ async function insertCreateEvent(blockdata){
 
 async function create(blockdata) {
   let event = blockdata;
-  let date = event.returnValues.createDate;
+  let date = event.returnValues.param.createDate;
   date = date.slice(0,4) + '-' + date.slice(4,6) + '-' + date.slice(6,8);
-  let pmno = (event.returnValues.Id).slice(0,4);
-  let pcno = (event.returnValues.Id).slice(4,8);
-  let scno = (event.returnValues.Id).slice(8,12);
+  let pmno = (event.returnValues.param.Id).slice(0,4);
+  let pcno = (event.returnValues.param.Id).slice(4,8);
+  let scno = (event.returnValues.param.Id).slice(8,12);
   var parents = [];
   var childs = [];
-  if(event.returnValues.functional==2){
-    parents = event.returnValues.other;
+  if(event.returnValues.param.functional==2){
+    parents = event.returnValues.param.other;
   }
-  if(event.returnValues.functional==1){
-    parents = event.returnValues.other;
+  if(event.returnValues.param.functional==1){
+    parents = event.returnValues.param.other;
   }
-  let estatedata =  {"id":event.returnValues.Id,"data":{"pmno":pmno,"pcno":pcno,"scno":scno,"county":event.returnValues.county,"townShip":event.returnValues.townShip,"reason":event.returnValues.reason,"begDate":event.returnValues.createDate,"endDate":event.returnValues.endDate,"parents":parents,"children":childs,"changedTag":event.returnValues.changedTag},"polygon":{"points":event.returnValues.pList,"length":event.returnValues.numOfPoint}};
-  const INSERT_DATA_QUERY = `INSERT INTO nowestatetable (EstateId,CreateDate,PCNO,PMNO,SCNO,TownShip,County,Reason,ChangeTag,EstateData) VALUES ('${event.returnValues.Id}','${date}',${pcno},${pmno},${scno},'${event.returnValues.townShip}','${event.returnValues.county}',${event.returnValues.reason},${event.returnValues.changedTag},'${JSON.stringify(estatedata)}')`;
+  let estatedata =  {"id":event.returnValues.param.Id,"data":{"pmno":pmno,"pcno":pcno,"scno":scno,"county":event.returnValues.param.county,"townShip":event.returnValues.param.townShip,"reason":event.returnValues.param.reason,"begDate":event.returnValues.param.createDate,"endDate":event.returnValues.param.endDate,"parents":parents,"children":childs,"changedTag":event.returnValues.param.changedTag},"polygon":{"points":event.returnValues.param.pList,"length":event.returnValues.param.numOfPoint}};
+  const INSERT_DATA_QUERY = `INSERT INTO nowestatetable (EstateId,CreateDate,PCNO,PMNO,SCNO,TownShip,County,Reason,ChangeTag,EstateData) VALUES ('${event.returnValues.param.Id}','${date}',${pcno},${pmno},${scno},'${event.returnValues.param.townShip}','${event.returnValues.param.county}',${event.returnValues.param.reason},${event.returnValues.param.changedTag},'${JSON.stringify(estatedata)}')`;
   con.query(INSERT_DATA_QUERY,
     function(err,res) {
       if (err) throw err;
-      console.log(event.returnValues.Id);
+      console.log(event.returnValues.param.Id);
       console.log("insert to nowestate sucess");
       // let tracsctionId = event.transactionHash;
   })
@@ -118,7 +142,7 @@ async function create(blockdata) {
 
 async function deleteFromDB(blockdata) {
   let event = blockdata;
-  const DELETE_QUERY = `DELETE FROM nowestatetable WHERE EstateId='${event.returnValues.Id}'`;
+  const DELETE_QUERY = `DELETE FROM nowestatetable WHERE EstateId='${event.returnValues.param.Id}'`;
   con.query(DELETE_QUERY,
     function(err,res){
       if(err) throw err;
@@ -128,8 +152,8 @@ async function deleteFromDB(blockdata) {
 
 async function old(blockdata) {
   let event = blockdata;
-  let obj = JSON.parse(event.returnValues.data);
-  const INSERT_OLD_QUERY = `INSERT INTO olddatatable (EstateId,BeginDate,EndDate,PCNO,PMNO,SCNO,County,TownShip,Reason,ChangeTag,EstateData) VALUES ('${event.returnValues.Id}','${event.returnValues.begDate}','${event.returnValues.endDate}',${obj.data.pcno},${obj.data.pmno},${obj.data.scno},'${obj.data.county}','${obj.data.townShip}',${obj.data.reason},${0},'${event.returnValues.data}')`;
+  let obj = JSON.parse(event.returnValues.param.data);
+  const INSERT_OLD_QUERY = `INSERT INTO olddatatable (EstateId,BeginDate,EndDate,PCNO,PMNO,SCNO,County,TownShip,Reason,ChangeTag,EstateData) VALUES ('${event.returnValues.param.Id}','${event.returnValues.param.begDate}','${event.returnValues.param.endDate}',${obj.data.pcno},${obj.data.pmno},${obj.data.scno},'${obj.data.county}','${obj.data.townShip}',${obj.data.reason},${0},'${event.returnValues.param.data}')`;
   con.query(INSERT_OLD_QUERY,
     function(err,res){
       if(err) throw err;
@@ -141,17 +165,29 @@ async function old(blockdata) {
 function merge(blockdata){
   let event = blockdata;
   console.log("merge event:")
-  console.log("parent:"+event.returnValues.parentId);
-  console.log("child:"+event.returnValues.childId);
+  console.log("parent:"+event.returnValues.param.parentId);
+  console.log("child:"+event.returnValues.param.childId);
 }
 
 function split(blockdata){
   let event = blockdata;
   console.log("split event:")
-  console.log("parent:"+ event.returnValues.parentId);//一個
-  console.log("child:"+ event.returnValues.childId);
+  console.log("parent:"+ event.returnValues.param.parentId);//一個
+  console.log("child:"+ event.returnValues.param.childId);
 }
 
+app.get('/entity_id', (req, res) => {
+  const {entity_type} = req.query;
+  const QUERY = `INSERT INTO entity_list (entity_type) VALUES ('${entity_type}');`
+
+  con.query(QUERY, (err,results) => {
+    if (err) {
+      return res.send(err);
+    } else {
+      return res.send(results);
+    }
+  });
+})
 
 app.get('/getOne',(req,res) => {
   const {id} = req.query;

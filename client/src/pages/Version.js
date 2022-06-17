@@ -83,9 +83,7 @@ class Version extends Component{
             alert("輸入其他日期");
             return;
         }
-        // else{
-        //     ReactDOM.render(date.slice(0,10), document.getElementById('mapdate'));
-        // }
+
         for(let i = 0;i < nowData.length;i++){
             estateList.push(JSON.parse(nowData[i].EstateData));
         }

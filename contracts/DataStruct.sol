@@ -22,3 +22,28 @@ struct Data{
     uint reason;
     uint changeTag;
 }
+
+struct EventCreateParam{
+    string Id;
+    string createDate;
+    string endDate;
+    string county;
+    uint townShip;
+    uint reason;
+    uint changedTag;
+    Point[100] pList;
+    uint numOfPoint;
+    uint functional;
+    string enventdata;
+    string[] other;
+}
+
+struct FunctionCreateParam{
+    string id;
+    Data data;
+    Polygon poly;
+    string[] pa;
+    uint functional;
+    string eventdata;
+    string[] other;
+}

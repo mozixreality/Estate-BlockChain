@@ -1,6 +1,10 @@
 import React, { Component } from "react";
+import { Context } from "../Context";
+
 class SearchFromChain extends Component{
     state = {web3:null, accounts: null, contract:null, estate:null};
+
+    static contextType = Context
 
     componentDidMount = async () => {
         this.setState({web3:this.props.web3, accounts:this.props.accounts, contract: this.props.contract});

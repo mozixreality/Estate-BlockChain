@@ -9,6 +9,7 @@ ACCOUNT_PASSWD=Abcd1234
 help:
 	@echo "make init: create a new private chain"
 	@echo "make new-account: create a new block chain account"
+	@echo "make migrate: migrate contract with truffle (must start geth first)"
 	@echo "make start-geth: start your private chain"
 	@echo "make start-frontend: start your frontend server"
 	@echo "make start-backend: start your backend server"
@@ -25,6 +26,14 @@ else
 	geth account new --password <(echo $(ACCOUNT_PASSWD))
 endif
 
+migrate:
+ifdef env
+	truffle migrate --reset --network $(env)
+else
+	truffle migrate --reset --network development
+endif
+
+
 start-geth:
 	geth --datadir $(BLOCK_DATA) --networkid $(NETWORK_ID) \
 	--ws --wsport 8546 --wsorigins "*" \
@@ -35,7 +44,7 @@ start-geth:
 	console
 
 start-backend:
-	cd client/src && node server2.js
+	cd client/src/backend && node server.js
 
 start-frontend:
 	cd client && npm start
