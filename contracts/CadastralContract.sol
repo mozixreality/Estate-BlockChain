@@ -54,7 +54,6 @@ contract CadastralContract{
         string data
     );
 
-    // function create(string memory id,Data memory data,Polygon memory poly,string [] memory pa) public  payable{
     function create(
         string memory id,
         Data memory data,

@@ -6,6 +6,20 @@ npm install --force
 ```
 > If you facing the problem that **Create React App requires a dependency: "babel-loader": "8.1.0"**. Try to create a **.env** file in your client directory and add **SKIP_PREFLIGHT_CHECK=true** in it. Then restart your react server
 
+## MySQL Server
+1. open mysql server with the following command, then type your root password.
+```
+mysql -u root -p
+```
+2. using SQL console and type the following command
+```
+CREATE DATABASE estate_blockchain;
+```
+3. back to your terminal and import the sql file like
+```
+mysql -u root -p estate_blockchain < sql/estate_blockchain.sql
+```
+
 ## Geth Tips
 ### Command Introduce
 1. Initialize a private chain.

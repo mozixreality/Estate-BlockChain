@@ -49,7 +49,7 @@ async function asyncCall() {
 
   myContract.events.allEvents()
   .on('data', async(event) => {
-    sendKafkaMsg(['hey 123']);
+    // sendKafkaMsg(['hey 123']);
     switch(event.event) {
       case "eventCreate":
         create(event);
@@ -76,7 +76,13 @@ async function insertCreateEvent(blockdata){
   let event = blockdata;
   let date = event.returnValues.createDate;
   date = date.slice(0,4) + '-' + date.slice(4,6) + '-' + date.slice(6,8);
-  const INSERT_EVENT_QUERY = `INSERT INTO eventtable (EstateId,ChangeDate,ChangeReason,EstateEvent) VALUES ('${event.returnValues.Id}','${date}',${event.returnValues.functional},'${event.returnValues.eventdata}')`;
+  const INSERT_EVENT_QUERY = `
+    INSERT INTO eventtable (EstateId, ChangeDate, ChangeReason, EstateEvent) VALUES (
+      '${event.returnValues.Id}',
+      '${date}',
+      ${event.returnValues.functional},
+      '${event.returnValues.eventdata}'
+    )`;
   con.query(INSERT_EVENT_QUERY,
     function(err,res){
       if (err) throw err;
