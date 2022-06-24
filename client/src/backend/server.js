@@ -53,20 +53,20 @@ async function asyncCall() {
       case "eventCreate":
         create(event);
         insertCreateEvent(event);
-        addEvent(event, "Create");
+        addEvent(event);
         break;
       case "eventDelete":
         old(event);
         deleteFromDB(event);
-        addEvent(event, "Delete");
+        addEvent(event);
         break;
       case "eventMerge":
         merge(event);
-        addEvent(event, "Merge");
+        addEvent(event);
         break;
       case "eventSplit":
         split(event);
-        addEvent(event, "Split");
+        addEvent(event);
         break;
       default:
         console.log("something go error ...");
@@ -75,17 +75,24 @@ async function asyncCall() {
   .on('error', console.error);
 }
 
-async function addEvent(event, eventType) {
+async function addEvent(event) {
+  let eventType = new Map([
+    ["eventCreate", 0],
+    ["eventDelete", 1],
+    ["eventMerge", 2],
+    ["eventSplit", 3]
+  ]);
+
   const QUERY = `
     INSERT INTO event_list (
       event_type,
-      entity_id,
-      entity_type,
+      operation_id,
+      operation_type,
       event_data
     ) VALUES (
-      '${eventType}',
-      ${event.returnValues.entityId},
-      '${event.returnValues.entityType}',
+      '${eventType.get(event.event)}',
+      ${event.returnValues.operationId},
+      '${event.returnValues.operationType}',
       '${JSON.stringify(event)}'
     );
   `
@@ -142,7 +149,7 @@ async function create(blockdata) {
 
 async function deleteFromDB(blockdata) {
   let event = blockdata;
-  const DELETE_QUERY = `DELETE FROM nowestatetable WHERE EstateId='${event.returnValues.param.Id}'`;
+  const DELETE_QUERY = `DELETE FROM nowestatetable WHERE EstateId='${event.returnValues.Id}'`;
   con.query(DELETE_QUERY,
     function(err,res){
       if(err) throw err;
@@ -152,8 +159,8 @@ async function deleteFromDB(blockdata) {
 
 async function old(blockdata) {
   let event = blockdata;
-  let obj = JSON.parse(event.returnValues.param.data);
-  const INSERT_OLD_QUERY = `INSERT INTO olddatatable (EstateId,BeginDate,EndDate,PCNO,PMNO,SCNO,County,TownShip,Reason,ChangeTag,EstateData) VALUES ('${event.returnValues.param.Id}','${event.returnValues.param.begDate}','${event.returnValues.param.endDate}',${obj.data.pcno},${obj.data.pmno},${obj.data.scno},'${obj.data.county}','${obj.data.townShip}',${obj.data.reason},${0},'${event.returnValues.param.data}')`;
+  let obj = JSON.parse(event.returnValues.data);
+  const INSERT_OLD_QUERY = `INSERT INTO olddatatable (EstateId,BeginDate,EndDate,PCNO,PMNO,SCNO,County,TownShip,Reason,ChangeTag,EstateData) VALUES ('${event.returnValues.Id}','${event.returnValues.begDate}','${event.returnValues.endDate}',${obj.data.pcno},${obj.data.pmno},${obj.data.scno},'${obj.data.county}','${obj.data.townShip}',${obj.data.reason},${0},'${event.returnValues.data}')`;
   con.query(INSERT_OLD_QUERY,
     function(err,res){
       if(err) throw err;
@@ -165,20 +172,20 @@ async function old(blockdata) {
 function merge(blockdata){
   let event = blockdata;
   console.log("merge event:")
-  console.log("parent:"+event.returnValues.param.parentId);
-  console.log("child:"+event.returnValues.param.childId);
+  console.log("parent:"+event.returnValues.parentId);
+  console.log("child:"+event.returnValues.childId);
 }
 
 function split(blockdata){
   let event = blockdata;
   console.log("split event:")
-  console.log("parent:"+ event.returnValues.param.parentId);//一個
-  console.log("child:"+ event.returnValues.param.childId);
+  console.log("parent:"+ event.returnValues.parentId);//一個
+  console.log("child:"+ event.returnValues.childId);
 }
 
-app.get('/entity_id', (req, res) => {
-  const {entity_type} = req.query;
-  const QUERY = `INSERT INTO entity_list (entity_type) VALUES ('${entity_type}');`
+app.get('/operation_id', (req, res) => {
+  const {operation_type} = req.query;
+  const QUERY = `INSERT INTO operation_list (operation_type) VALUES ('${operation_type}');`
 
   con.query(QUERY, (err,results) => {
     if (err) {

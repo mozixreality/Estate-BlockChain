@@ -41,10 +41,10 @@ export async function importEstate(form) {
     
   }
   const backendServer = context.BackendServer + ":" + context.BackendServerPort
-  var entityID = 0
-  await fetch(backendServer + `/entity_id?entity_type=${context.Entity.Create}`)
+  var operationID = 0
+  await fetch(backendServer + `/operation_id?operation_type=${context.Operation.Create}`)
     .then(response => response.json())
-    .then(json => entityID = json.insertId)
+    .then(json => operationID = json.insertId)
 
   await contract.methods.create({
       id: dataObject.id, 
@@ -55,7 +55,7 @@ export async function importEstate(form) {
       eventdata: eventData, 
       other: []
     }, 
-    entityID,
-    context.Entity.Create
+    operationID,
+    context.Operation.Create
   ).send({ from: accounts[0] });
 }

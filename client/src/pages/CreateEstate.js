@@ -13,7 +13,7 @@ class CreateEstate extends Component {
       accounts: this.props.accounts,
       contract: this.props.contract
     });
-    console.log(this.context.Entity.Create)
+    console.log(this.context.Operation.Create)
   };
 
   page = async () => {
@@ -30,10 +30,10 @@ class CreateEstate extends Component {
     console.log("create!");
     
     const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
-    var entityID = 0
-    await fetch(backendServer + `/entity_id?entity_type=${this.context.Entity.Create}`)
+    var operationID = 0
+    await fetch(backendServer + `/operation_id?operation_type=${this.context.Operation.Create}`)
       .then(response => response.json())
-      .then(json => entityID = json.insertId)
+      .then(json => operationID = json.insertId)
     
     await contract.methods.create({
         id: dataObject.id,
@@ -44,8 +44,8 @@ class CreateEstate extends Component {
         eventdata: eventData,
         other: []
       },
-      entityID,
-      this.context.Entity.Create,
+      operationID,
+      this.context.Operation.Create,
     ).send({
       from: accounts[0],
       gas: 100000000

@@ -24,22 +24,22 @@ contract CadastralContract{
         string [] parentId,
         string [] childId,
         string changeDate,
-        uint entityId,
-        string entityType
+        uint operationId,
+        uint operationType
     );
 
     event eventCreate(
         EventCreateParam param,
-        uint entityId,
-        string entityType
+        uint operationId,
+        uint operationType
     );
 
     event eventMerge(
         string childId,
         string [] parentId,
         string changeDate,
-        uint entityId,
-        string entityType
+        uint operationId,
+        uint operationType
     );
 
     event eventDelete(
@@ -47,14 +47,14 @@ contract CadastralContract{
         string begDate,
         string endDate,
         string data,
-        uint entityId,
-        string entityType
+        uint operationId,
+        uint operationType
     );
 
     function create(
         FunctionCreateParam memory param,
-        uint entityId,
-        string calldata entityType
+        uint operationId,
+        uint operationType
     ) 
         public  
         payable
@@ -79,8 +79,8 @@ contract CadastralContract{
                     param.eventdata,
                     param.other
                 ),
-                entityId,
-                entityType
+                operationId,
+                operationType
             );
         }
     }
@@ -91,8 +91,8 @@ contract CadastralContract{
         string memory begDate,
         string memory endDate,
         string memory data,
-        uint entityId,
-        string calldata entityType
+        uint operationId,
+        uint operationType
     ) 
         public
         payable
@@ -103,8 +103,8 @@ contract CadastralContract{
             begDate, 
             endDate,
             data, 
-            entityId,
-            entityType
+            operationId,
+            operationType
         );
     }
 
@@ -117,8 +117,8 @@ contract CadastralContract{
         uint numOfnewEstate,
         uint functional,
         string memory eventdata,
-        uint entityId,
-        string calldata entityType
+        uint operationId,
+        uint operationType
     )
         public
         payable
@@ -138,8 +138,8 @@ contract CadastralContract{
                     eventdata, 
                     sId
                 ),
-                entityId,
-                entityType
+                operationId,
+                operationType
             );
         }
 
@@ -147,8 +147,8 @@ contract CadastralContract{
             sId,
             newIdList,
             newDataList[0].begDate,
-            entityId,
-            entityType    
+            operationId,
+            operationType    
         );
     }
 
@@ -160,8 +160,8 @@ contract CadastralContract{
         uint numOfMergeEstate,
         uint functional,
         string memory eventdata,
-        uint entityId,
-        string calldata entityType
+        uint operationId,
+        uint operationType
     ) 
         public
         payable
@@ -183,15 +183,15 @@ contract CadastralContract{
                 eventdata, 
                 mIdList
             ),
-            entityId,
-            entityType
+            operationId,
+            operationType
         );
         emit eventMerge(
             newId,
             mIdList,
             data.begDate,
-            entityId,
-            entityType    
+            operationId,
+            operationType    
         );
     }
 

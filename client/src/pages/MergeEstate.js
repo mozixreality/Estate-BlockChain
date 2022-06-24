@@ -26,10 +26,10 @@ class MergeEstate extends Component{
         let oldDataList = [];
         let date = formatData.DFormat.json.data.endDate;
 
-        var entityID = 0
-        await fetch(backendServer + `/entity_id?entity_type=${this.context.Entity.Merge}`)
+        var operationID = 0
+        await fetch(backendServer + `/operation_id?operation_type=${this.context.Operation.Merge}`)
         .then(response => response.json())
-        .then(json => entityID = json.insertId)
+        .then(json => operationID = json.insertId)
 
         for(let i = 0;i < mergedIdList.length;i++){
             let data = await fetch(backendServer + `/getOne?id=${mergedIdList[i]}`).then((response) => {
@@ -49,8 +49,8 @@ class MergeEstate extends Component{
                 data1.data.begDate,
                 data1.data.endDate,
                 JSON.stringify(data1),
-                entityID,
-                this.context.Entity.Merge
+                operationID,
+                this.context.Operation.Merge
             ).send({
                 from:accounts[0],
                 gas: 100000000
@@ -69,8 +69,8 @@ class MergeEstate extends Component{
             mergedIdList.length,
             2,
             eventData,
-            entityID,
-            this.context.Entity.Merge
+            operationID,
+            this.context.Operation.Merge
         ).send({
             from:accounts[0],
             gas: 100000000

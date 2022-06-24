@@ -93,18 +93,18 @@ class SplitEstate extends Component{
         fromList[0] = data1;
         data = JSON.stringify(data1);
 
-        var entityID = 0
-        await fetch(backendServer + `/entity_id?entity_type=${this.context.Entity.Splite}`)
+        var operationID = 0
+        await fetch(backendServer + `/operation_id?operation_type=${this.context.Operation.Splite}`)
         .then(response => response.json())
-        .then(json => entityID = json.insertId)
+        .then(json => operationID = json.insertId)
 
         await contract.methods.deleteEst(
             data1.id,
             data1.data.begDate,
             data1.data.endDate,
             JSON.stringify(data1),
-            entityID,
-            this.context.Entity.Splite,
+            operationID,
+            this.context.Operation.Splite,
         ).send({
             from: accounts[0],
             gas: 100000000
@@ -121,8 +121,8 @@ class SplitEstate extends Component{
             length,
             1,
             eventData,
-            entityID,
-            this.context.Entity.Splite,
+            operationID,
+            this.context.Operation.Splite,
         ).send({
             from:accounts[0],
             gas: 100000000
