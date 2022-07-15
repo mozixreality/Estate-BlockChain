@@ -27,7 +27,7 @@ SET time_zone = "+00:00";
 --
 -- 資料表結構 `event_list`
 --
-
+DROP TABLE IF EXISTS `event_list`;
 CREATE TABLE `event_list` (
   `event_id` int NOT NULL,
   `event_type` tinyint NOT NULL,

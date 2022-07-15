@@ -27,7 +27,7 @@ SET time_zone = "+00:00";
 --
 -- 資料表結構 `operation_list`
 --
-
+DROP TABLE IF EXISTS `operation_list`;
 CREATE TABLE `operation_list` (
   `operation_id` int NOT NULL,
   `operation_type` tinyint NOT NULL
