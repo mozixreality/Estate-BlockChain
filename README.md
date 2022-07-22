@@ -67,3 +67,4 @@ miner.stop()
 
 
 # https://debezium.io/documentation/reference/1.1/tutorial.html#starting-kafka-connect
+if kafka connect does not work perfectly, please check the error message and the kafka settings to solve the problem
