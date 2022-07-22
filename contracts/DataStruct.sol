@@ -34,7 +34,6 @@ struct EventCreateParam{
     Point[100] pList;
     uint numOfPoint;
     uint functional;
-    string enventdata;
     string[] other;
 }
 
@@ -44,6 +43,5 @@ struct FunctionCreateParam{
     Polygon poly;
     string[] pa;
     uint functional;
-    string eventdata;
     string[] other;
 }

@@ -9,7 +9,7 @@ const multer  = require('multer');
 const fetch = require('node-fetch');
 const app = express();
 const upload = multer({ dest: '../uploads/' })
-import sendKafkaMsg from "../kafka/producer.js";
+// import sendKafkaMsg from "../kafka/producer.js";
 require('dotenv').config({path: "../../.env"})
 
 const CadastralContract  = require('../contracts/CadastralContract.json')
@@ -52,7 +52,6 @@ async function asyncCall() {
     switch(event.event) {
       case "eventCreate":
         create(event);
-        insertCreateEvent(event);
         addEvent(event);
         break;
       case "eventDelete":
@@ -103,27 +102,10 @@ async function addEvent(event) {
   })
 }
 
-async function insertCreateEvent(blockdata){
-  let event = blockdata;
-  let date = event.returnValues.param.createDate;
-  date = date.slice(0,4) + '-' + date.slice(4,6) + '-' + date.slice(6,8);
-  const INSERT_EVENT_QUERY = `
-    INSERT INTO eventtable (EstateId, ChangeDate, ChangeReason, EstateEvent) VALUES (
-      '${event.returnValues.param.Id}',
-      '${date}',
-      ${event.returnValues.param.functional},
-      '${event.returnValues.param.eventdata}'
-    )`;
-  con.query(INSERT_EVENT_QUERY,
-    function(err,res){
-      if (err) throw err;
-      console.log("insert to event table sucess");
-  })
-}
-
 async function create(blockdata) {
   let event = blockdata;
   let date = event.returnValues.param.createDate;
+  console.log(event)
   date = date.slice(0,4) + '-' + date.slice(4,6) + '-' + date.slice(6,8);
   let pmno = (event.returnValues.param.Id).slice(0,4);
   let pcno = (event.returnValues.param.Id).slice(4,8);
@@ -157,6 +139,7 @@ async function deleteFromDB(blockdata) {
   })
 }
 
+//delete from nowestatetable
 async function old(blockdata) {
   let event = blockdata;
   let obj = JSON.parse(event.returnValues.data);
@@ -166,7 +149,7 @@ async function old(blockdata) {
       if(err) throw err;
       console.log("insert to oldtable sucess");
   })
-  //delete from nowestatetable
+  
 }
 
 function merge(blockdata){
@@ -285,67 +268,67 @@ app.get('/searchUniverse', (req,res) => {
   })
 })
 
-app.get('/searchFromEvent', (req,res) => {
-  const { date } = req.query;
-  const SEARCH_QUERY = `SELECT EstateId, EstateId, EstateEvent FROM eventtable WHERE ChangeDate > '${date}'`;
-  con.query(SEARCH_QUERY, (err, results) => {
-      if(err){
-          return console.log(err);
-      }
-      else{
-          return res.send(results);
-      }
-  })
-})
+// app.get('/searchFromEvent', (req,res) => {
+//   const { date } = req.query;
+//   const SEARCH_QUERY = `SELECT EstateId, EstateId, EstateEvent FROM eventtable WHERE ChangeDate > '${date}'`;
+//   con.query(SEARCH_QUERY, (err, results) => {
+//       if(err){
+//           return console.log(err);
+//       }
+//       else{
+//           return res.send(results);
+//       }
+//   })
+// })
 
-app.post('/profile', upload.single('avatar'), function (req, res, next) {
-  let county = req.body.county;
-  let township = req.body.townShip;
-  let originalDate = req.body.begD;
-  let date = req.body.begD.slice(0,4) + "-" + req.body.begD.slice(4,6) + "-" + req.body.begD.slice(6,8);
-  var id = '';
-  var pmno = '';
-  var pcno = '';
-  var scno = '';
-  var points = [];
-  fs.createReadStream(req.file.path)
-  .pipe(csv())
-  .on('data', (row) => {
-    pmno = row['PMNO'].toString().padStart(4, "0")
-    pcno = row['PCNO'].toString().padStart(4, "0")
-    scno = row['SCNO'].toString().padStart(4, "0")
-    if (id=='' ) id = scno+pmno+pcno+originalDate;
-    if((scno+pmno+pcno+originalDate!= id)){
-      points.pop();
-      let length = points.length;
-      for(let i = length;i<100;i++){
-        points.push(["n","n"]);
-      }
-      let data = {"id":id,"data":{"pmno":pmno,"pcno":pcno,"scno":scno,"county":county,"townShip":township,"reason":"0","begDate":originalDate,"endDate":originalDate,"parents":[],"children":[],"changedTag":"0"},"polygon":{"points":points,"length":length}}
-      const INSERT_DATA_QUERY = `INSERT INTO nowestatetable (EstateId,CreateDate,PCNO,PMNO,SCNO,TownShip,County,Reason,ChangeTag,EstateData) VALUES ('${id}','${date}',${id.slice(4,8)},${id.slice(0,4)},${id.slice(8,12)},'${township}','${county}',${0},${0},'${JSON.stringify(data)}')`;
-      con.query(INSERT_DATA_QUERY,
-        function(err,res) {
-          if (err) throw err;
-      })
-      let eventdata = {"from":[],"to":[data],"changeReason":0,"changeDate":originalDate};
-      const INSERT_EVENT_QUERY = `INSERT INTO eventtable (EstateId,ChangeDate,ChangeReason,EstateEvent) VALUES ('${id}','${date}',${0},'${JSON.stringify(eventdata)}')`;
-      con.query(INSERT_EVENT_QUERY,
-        function(err,res){
-        if (err) throw err;
-      })
-      points = [];
-      id = scno+pmno+pcno+originalDate;
-    }
+// app.post('/profile', upload.single('avatar'), function (req, res, next) {
+//   let county = req.body.county;
+//   let township = req.body.townShip;
+//   let originalDate = req.body.begD;
+//   let date = req.body.begD.slice(0,4) + "-" + req.body.begD.slice(4,6) + "-" + req.body.begD.slice(6,8);
+//   var id = '';
+//   var pmno = '';
+//   var pcno = '';
+//   var scno = '';
+//   var points = [];
+//   fs.createReadStream(req.file.path)
+//   .pipe(csv())
+//   .on('data', (row) => {
+//     pmno = row['PMNO'].toString().padStart(4, "0")
+//     pcno = row['PCNO'].toString().padStart(4, "0")
+//     scno = row['SCNO'].toString().padStart(4, "0")
+//     if (id=='' ) id = scno+pmno+pcno+originalDate;
+//     if((scno+pmno+pcno+originalDate!= id)){
+//       points.pop();
+//       let length = points.length;
+//       for(let i = length;i<100;i++){
+//         points.push(["n","n"]);
+//       }
+//       let data = {"id":id,"data":{"pmno":pmno,"pcno":pcno,"scno":scno,"county":county,"townShip":township,"reason":"0","begDate":originalDate,"endDate":originalDate,"parents":[],"children":[],"changedTag":"0"},"polygon":{"points":points,"length":length}}
+//       const INSERT_DATA_QUERY = `INSERT INTO nowestatetable (EstateId,CreateDate,PCNO,PMNO,SCNO,TownShip,County,Reason,ChangeTag,EstateData) VALUES ('${id}','${date}',${id.slice(4,8)},${id.slice(0,4)},${id.slice(8,12)},'${township}','${county}',${0},${0},'${JSON.stringify(data)}')`;
+//       con.query(INSERT_DATA_QUERY,
+//         function(err,res) {
+//           if (err) throw err;
+//       })
+//       let eventdata = {"from":[],"to":[data],"changeReason":0,"changeDate":originalDate};
+//       const INSERT_EVENT_QUERY = `INSERT INTO eventtable (EstateId,ChangeDate,ChangeReason,EstateEvent) VALUES ('${id}','${date}',${0},'${JSON.stringify(eventdata)}')`;
+//       con.query(INSERT_EVENT_QUERY,
+//         function(err,res){
+//         if (err) throw err;
+//       })
+//       points = [];
+//       id = scno+pmno+pcno+originalDate;
+//     }
 
-    points.push([(row['X']-270000),((-1)*(row['Y']-2774624))])
-  })
-  .on('end', () => {
-    console.log('CSV file successfully processed');
-  });
+//     points.push([(row['X']-270000),((-1)*(row['Y']-2774624))])
+//   })
+//   .on('end', () => {
+//     console.log('CSV file successfully processed');
+//   });
 
-  res.status(204).send();
+//   res.status(204).send();
 
-})
+// })
 
 
   

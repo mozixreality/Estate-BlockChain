@@ -21,12 +21,6 @@ class CreateEstate extends Component {
     var form = document.getElementById("createForm");
     let dataForm = EstateFormat.getCreatForm(form);
     let dataObject = dataForm.DFormat;
-    let eventData = ""
-    let becomeList = new Array(1);
-    becomeList[0] = dataObject.json;
-    eventData = EstateFormat.getEventFormat([], becomeList, 0, form[5].value);
-    eventData = JSON.stringify(eventData);
-    //console.log(dataObject.id,dataObject.blockChain,dataForm.PFormat.blockChain,[],0,eventData,[])
     console.log("create!");
     
     const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
@@ -41,7 +35,6 @@ class CreateEstate extends Component {
         poly: dataForm.PFormat.blockChain,
         pa: [],
         functional: 0,
-        eventdata: eventData,
         other: []
       },
       operationID,

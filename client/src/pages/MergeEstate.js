@@ -22,8 +22,6 @@ class MergeEstate extends Component{
         ))
         console.log(mergedIdList);
         let formatData = EstateFormat.getMergeForm(form,mergedIdList);
-        let fromList = [];
-        let oldDataList = [];
         let date = formatData.DFormat.json.data.endDate;
 
         var operationID = 0
@@ -41,14 +39,11 @@ class MergeEstate extends Component{
             let data1 = JSON.parse(data);
             data1.data.endDate = date;
             data1.data.children = [formatData.DFormat.id];
-            fromList.push(data1);
-            oldDataList.push(JSON.stringify(data1));
 
             await contract.methods.deleteEst(
                 data1.id,
                 data1.data.begDate,
                 data1.data.endDate,
-                JSON.stringify(data1),
                 operationID,
                 this.context.Operation.Merge
             ).send({
@@ -57,8 +52,6 @@ class MergeEstate extends Component{
             });
         }
 
-        let eventData = EstateFormat.getEventFormat(fromList,[formatData.DFormat.json],2,date);          
-        eventData = JSON.stringify(eventData);
         console.log(mergedIdList);
         
         await contract.methods.merge(
@@ -68,7 +61,6 @@ class MergeEstate extends Component{
             formatData.PFormat.blockChain,
             mergedIdList.length,
             2,
-            eventData,
             operationID,
             this.context.Operation.Merge
         ).send({

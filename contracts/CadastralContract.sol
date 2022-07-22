@@ -46,7 +46,6 @@ contract CadastralContract{
         string Id,
         string begDate,
         string endDate,
-        string data,
         uint operationId,
         uint operationType
     );
@@ -76,7 +75,6 @@ contract CadastralContract{
                     param.poly.pList,
                     param.poly.numOfPoint,
                     param.functional,
-                    param.eventdata,
                     param.other
                 ),
                 operationId,
@@ -90,7 +88,6 @@ contract CadastralContract{
         string memory id,
         string memory begDate,
         string memory endDate,
-        string memory data,
         uint operationId,
         uint operationType
     ) 
@@ -102,7 +99,6 @@ contract CadastralContract{
             id, 
             begDate, 
             endDate,
-            data, 
             operationId,
             operationType
         );
@@ -116,7 +112,6 @@ contract CadastralContract{
         Polygon [] memory polygonList,
         uint numOfnewEstate,
         uint functional,
-        string memory eventdata,
         uint operationId,
         uint operationType
     )
@@ -135,7 +130,6 @@ contract CadastralContract{
                     polygonList[i], 
                     temp, 
                     functional, 
-                    eventdata, 
                     sId
                 ),
                 operationId,
@@ -159,7 +153,6 @@ contract CadastralContract{
         Polygon memory polygon,
         uint numOfMergeEstate,
         uint functional,
-        string memory eventdata,
         uint operationId,
         uint operationType
     ) 
@@ -180,7 +173,6 @@ contract CadastralContract{
                 polygon, 
                 mIdList, 
                 functional, 
-                eventdata, 
                 mIdList
             ),
             operationId,

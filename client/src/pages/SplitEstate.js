@@ -89,8 +89,6 @@ class SplitEstate extends Component{
         let data1 = JSON.parse(data);
         data1.data.endDate = date;
         data1.data.children = newIdList;
-        let fromList = new Array(1);
-        fromList[0] = data1;
         data = JSON.stringify(data1);
 
         var operationID = 0
@@ -102,16 +100,12 @@ class SplitEstate extends Component{
             data1.id,
             data1.data.begDate,
             data1.data.endDate,
-            JSON.stringify(data1),
             operationID,
             this.context.Operation.Splite,
         ).send({
             from: accounts[0],
             gas: 100000000
         });
-        console.log(data1.id)
-        let eventData = EstateFormat.getEventFormat(fromList,newDataList.sql,1,date);          
-        eventData = JSON.stringify(eventData);
 
         await contract.methods.split(
             [id],
@@ -120,7 +114,6 @@ class SplitEstate extends Component{
             polygonList,
             length,
             1,
-            eventData,
             operationID,
             this.context.Operation.Splite,
         ).send({

@@ -64,3 +64,6 @@ miner.setEtherbase(eth.accounts[0])
 miner.start()
 miner.stop()
 ```
+
+
+# https://debezium.io/documentation/reference/1.1/tutorial.html#starting-kafka-connect

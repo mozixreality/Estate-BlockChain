@@ -5,7 +5,7 @@ const kafka = new Kafka({
     brokers: ['localhost:9092'],
 })
 const consumer = kafka.consumer({ 
-    groupId: 'event-sourcing10' 
+    groupId: 'event-sourcing01' 
 })
 const KafkaConnectTopic = {
     EventList:      "KafkaConnectTopic.estate_blockchain.event_list",
@@ -40,19 +40,20 @@ const EventType = {
 
 function restoreData(event) {
     payload = JSON.parse(event).payload
-    if(payload.after.event_type != EventType.Create && payload.after.event_type != EventType.Delete) {
-        return
-    }
+    // if(payload.after.event_type != EventType.Create && payload.after.event_type != EventType.Delete) {
+    //     return
+    // }
 
     data = payload.after.event_data
     try {
         data = JSON.parse(data)
+        console.log("OK")
     } catch (err) {
         // 👇️ This runs
         console.log('Error: ', err.message);
     }
     
-    console.log(payload.after.event_id, payload.after.event_type, {
-        data: data
-    })
+    // console.log(payload.after.event_id, payload.after.event_type, {
+    //     data: data
+    // })
 }
