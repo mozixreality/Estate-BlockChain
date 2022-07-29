@@ -76,7 +76,6 @@ consumer.run({
             if (err) throw err;
             console.log("insert snapshot sucess");
         });
-   
         
         // set time interval and wait heartbeat
         //sleep(2000);

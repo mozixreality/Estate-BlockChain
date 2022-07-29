@@ -47,7 +47,7 @@ class NowEstateList extends Component {
         this.setState({searchItem:item});
     }
 
-    createWin = () => {
+    showEstateInfo = () => {
         if(this.state.searchItem === null){
             return <div><p>點擊地圖獲得地籍資訊</p></div>
         }
@@ -81,7 +81,7 @@ class NowEstateList extends Component {
             //<Router></Router>
             <div style={{
                 paddingLeft: '20px',
-                paddingBottom: '20px',
+                paddingBottom: '300px',
                 boxSizing: 'content-box',
             }}> 
                 <div>
@@ -96,7 +96,7 @@ class NowEstateList extends Component {
                 <div id="esSvg"></div>
                 <div >
                 {
-                    this.createWin()//印出地籍資訊
+                    this.showEstateInfo()//印出地籍資訊
                 }
                 </div>
             </div>

@@ -192,6 +192,18 @@ app.get('/getOne',(req,res) => {
   });
 })
 
+app.get('/getLatestEstate',(req,res) => {
+  const QUERY = "SELECT estate_datas FROM estate_snapshot ORDER BY date DESC LIMIT 1";
+  con.query(QUERY, (err, results) => {
+      if(err){
+          return console.log(err);
+      }
+      else{
+          return res.send(results);
+      }
+  })
+})
+
 app.get('/getNowEstate',(req,res) => {
   const SELECT_NOW_QUERY = "SELECT EstateData FROM nowestatetable";
   con.query(SELECT_NOW_QUERY, (err, results) => {

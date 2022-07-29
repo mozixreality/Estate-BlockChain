@@ -59,6 +59,16 @@ var EstateFormat = {
         return poly;
     },
 
+    getPointArrFormat : function (pointsArr) {
+        let poly = [];
+        for(let i = 0;i < pointsArr.length;i++){
+            if(isNaN(parseInt(pointsArr[i][0])))
+                break
+            poly.push({"x":parseInt(pointsArr[i][0]),"y":parseInt(pointsArr[i][1])});
+        }
+        return poly;
+    },
+
     treeNodeFormat: function(parents,node){
         //parents is object(has built to tree)
         //node is new tree node who would be insert into the tree
