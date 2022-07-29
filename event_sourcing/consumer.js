@@ -6,7 +6,7 @@ const kafka = new Kafka({
     brokers: ['localhost:9092'],
 })
 const consumer = kafka.consumer({ 
-    groupId: 'event-sourcing69' 
+    groupId: 'event-sourcing40' 
 })
 const KafkaConnectTopic = {
     EventList:      "KafkaConnectTopic.estate_blockchain.event_list",
@@ -31,7 +31,7 @@ consumer.subscribe({
     fromBeginning: true 
 })
 consumer.run({
-    
+    eachBatchAutoResolve: false,
     eachBatch: async ({batch, resolveOffset, heartbeat}) => { // kafka batch default 16KB
         // fetch the latest estates snapshot from db
         let estates = {}
@@ -49,8 +49,15 @@ consumer.run({
         });
 
         // handle events to build a new snapshot
+        let latestEventId = 0;
         for (let message of batch.messages) {
+            // 5 event in each snapshot
+            if (message.offset - batch.firstOffset() >= 5) {
+                break;
+            } 
+
             let event = parseEvent(message.value.toString())
+            latestEventId = event.id
 
             switch (event.type) {
                 case EventType.Create:
@@ -60,27 +67,32 @@ consumer.run({
                     delete estates[event.estateID]
                     break;
             }
-
+            
             resolveOffset(message.offset)
+            await heartbeat()
         }
+
+        consumer.stop()
 
         // insert the new snapshot into db
         QUERY = `
             INSERT INTO estate_snapshot (
-                estate_datas
+                estate_datas,
+                latest_event
             ) VALUES (
-                '${JSON.stringify(estates)}'
+                '${JSON.stringify(estates)}',
+                ${latestEventId}
             )
         `;
-        sql.query(QUERY,(err, results) => {
+        sql.query(QUERY,(err) => {
             if (err) throw err;
             console.log("insert snapshot sucess");
-        });
-        
-        // set time interval and wait heartbeat
-        //sleep(2000);
-        await heartbeat()
+            process.exit(0);
+        })
     },
+}).then(() => {
+    console.log("no new message")
+    process.exit(0);
 })
 
 function parseEvent(event) {
@@ -92,10 +104,9 @@ function parseEvent(event) {
         console.log('Error: ', err.message);
     }
 
-    let type, estateID, estateInfo
+    let estateID, estateInfo
     switch (payload.after.event_type) {
         case EventType.Create:
-            type = payload.after.event_type
             estateID = data.returnValues[0][0],
             estateInfo = {
                 EstateID: data.returnValues[0][0],
@@ -110,7 +121,6 @@ function parseEvent(event) {
             }
             break;
         case EventType.Delete:
-            type = payload.after.event_type
             estateID = data.returnValues[0]
             break;
         default:
@@ -118,7 +128,8 @@ function parseEvent(event) {
     }
 
     return {
-        type: type,
+        id: payload.after.event_id,
+        type: payload.after.event_type,
         estateID: estateID,
         estateInfo: estateInfo
     }
@@ -134,7 +145,7 @@ const sql = mysql.createConnection({
 sql.connect(function (err) {
     if (err) throw err;
     console.log("SQL Connected!");
-});
+})
 
 
 
