@@ -8,188 +8,237 @@ import { Context } from "../Context";
 import { json } from "d3";
 
 class Version extends Component{
-    state = {
-    //     estateList:[],
-    //     eventList:[],
-    //     historyEventList:[],
-    //     date:null,
-        estates: [],
-        estateInfo: null,
-    //     width:800,
-    //     height:600,
-    //     tree:[],
-    //     leaves:[]
-    };
-    
     static contextType = Context
 
-    // showGraph = (estateList) => {
-    //     const {width,height} = this.state;
-    //     let polyList = [];
-    //     estateList.map((val,k) => (
-    //         polyList.push({poly:EstateFormat.getPointFormat(val.polygon),id:val.id})
-    //     ))
-    //     createMap(height,width,this,polyList);
-    // }
-
-    // page = async () => {
-    //     let date = document.getElementById("dataSearch").value;
-    //     date = date.slice(0,4) + "-" + date.slice(4,6) + "-" + date.slice(6,8);
-    //     //抓現在還在的地籍資料
-    //     const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
-    //     let nowData = await fetch(backendServer + `/searchFromNow?date=${date}`).then((response) => {
-    //         return response.json();
-    //     }).then((myjson) => {
-    //         return myjson;
-    //     });
-    //     //抓該日期舊有地籍資料
-    //     let oldData = await fetch(backendServer + `/searchFromOld?date=${date}`).then((response) => {
-    //         return response.json();
-    //     }).then((myjson) => {
-    //         return myjson;
-    //     });
-        
-    //     let estateList = [];
-    //     console.log(nowData.length);
-    //     if(nowData.length === 0){
-    //         alert("輸入其他日期");
-    //         return;
-    //     }
-
-    //     for(let i = 0;i < nowData.length;i++){
-    //         estateList.push(JSON.parse(nowData[i].EstateData));
-    //     }
-    //     for(let i = 0;i < oldData.length;i++){
-    //         estateList.push(JSON.parse(oldData[i].EstateData));
-    //     }
-
-    //     let eventList = await fetch(backendServer + `/searchFromEvent?date=${date}`).then((response) => {
-    //         return response.json();
-    //     }).then((myjson) => {
-    //         return myjson;
-    //     });
-    //     eventList.map((val,key) => (
-    //         val.EstateEvent = JSON.parse(val.EstateEvent)
-    //     ));
-
-    //     let historyEventList =  [];
-    //     date = new Date(date);
-    //     this.showGraph(estateList);
-    //     this.generateTree(estateList);
-    //     this.setState({estateList,eventList,historyEventList,date});
-    // };
-
-    // showTreeGraph = (treeNode,leaves) => {
-    //     const {width,height} = this.state;
-    //     createTree(treeNode,leaves,width,height);
-    // }
+    constructor(props) {
+        super(props);
+        this.state = {
+            windowWidth: 800,
     
-    // generateTree = async (estateList) => {
-    //     let { leaves } = this.state;
-    //     let treeNode = [];
-    //     if(estateList[0].data.children.length === 1){
-    //         let ele = estateList[0];
-    //         let node = {name:ele.id,parents:[],children:[]}
-    //         treeNode.push(node);
-    //         leaves.push(node);
-    //     }
-    //     else{
-    //         estateList.forEach((ele) => {
-    //             let node = {name:ele.id,parents:[],children:[]}
-    //             treeNode.push(node);
-    //             leaves.push(node);
-    //         })
-    //     }
+            searchDate:'',
+            estates: [],
+            polyList: [],
+            estateInfo: null,
+            latestEvent: 0,
+            currentEvent: 0
+        };
+        this.handleResize = this.handleResize.bind(this);
+    }
 
-    //     for(let i = 0;i < estateList.length;i++){
-    //         let tmpList = [];
-    //         let children = estateList[i].data.children;
-    //         //console.log(children);
-    //         const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
-    //         for(let j = 0;j < children.length;j++){
-    //             let es = await fetch(backendServer + `/searchUniverse?id=${children[j]}`).then((response) => {
-    //                 return response.json();
-    //             }).then((myjson) => {
-    //                 return myjson;
-    //             });
-    //             //console.log(es);
-    //             tmpList.push(JSON.parse(es[0].EstateData));
-    //         }
-    //         leaves = EstateFormat.parseLeaf(leaves,tmpList);
-    //     }
-    //     this.showTreeGraph(treeNode,leaves);
-    // }
+    searchEstate = async () => {
+        if (this.state.searchDate.length !== 10) { // check if current event is the first one or not
+            alert("invalid search date format");
+            return;
+        }
 
-    // preEvent = () => {
-    //     let {estateList,eventList,historyEventList,date} = this.state;
-    //     if(historyEventList.length === 0){
-    //         alert("This is the first one.")
-    //         return;
-    //     }
-    //     let localDate = date.toJSON().slice(0,10).split('-').join("");
-    //     //ReactDOM.render(date.toJSON().slice(0,10), document.getElementById('mapdate'));
-    //     let localEventList = [];
-    //     let length = 0;
-    //     for(let i = 0;i < historyEventList.length;i++){
-    //         if(historyEventList[i].EstateEvent.changeDate !== localDate){
-    //             localEventList = historyEventList.slice(0,i);
-    //             historyEventList = historyEventList.slice(i);
-    //             break;
-    //         }
-    //         if(i === historyEventList.length - 1){
-    //             localEventList = historyEventList.slice();
-    //             historyEventList = [];
-    //             length += 1;
-    //             break;
-    //         }
-    //         length += 1;
-    //     }
-    //     for(let i = 0;i < length;i++){
-    //         let ev = localEventList.shift();
-    //         estateList = PreFunctionTable[ev.EstateEvent.changeReason](ev,estateList);
-    //         eventList.unshift(ev);
-    //     }
-    //     date.setDate(date.getDate() - 1);
-    //     this.showGraph(estateList);
-    //     this.generateTree(estateList);
-    //     this.setState({estateList,eventList,historyEventList,date});
-    // }
+        const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
+        
+        let searchEstates = await fetch(backendServer + `/getNearestEstate?date=${this.state.searchDate}`).then((response) => {
+            return response.json();
+        }).then((myjson) => {
+            return myjson;
+        }).then();
 
-    // nextEvent = () => {
-    //     let {estateList,eventList,historyEventList,date} = this.state;
-    //     //console.log("next event")
-    //     if(eventList.length === 0){
-    //         alert("This is the last one.")
-    //         //console.log("no more event");
-    //         return;
-    //     }
-    //     date.setDate(date.getDate() + 1);
-    //     let localDate = date.toJSON().slice(0,10).split('-').join("");
-    //     let localEventList = [];
-    //     let length = 0;
-    //     for(let i = 0;i < eventList.length;i++){
-    //         if(eventList[i].EstateEvent.changeDate !== localDate){
-    //             localEventList = eventList.slice(0,i);
-    //             eventList = eventList.slice(i);
-    //             break;
-    //         }
-    //         if(i === eventList.length - 1){
-    //             localEventList = eventList.slice();
-    //             eventList = [];
-    //             length += 1;
-    //             break;
-    //         }
-    //         length += 1;
-    //     }
-    //     for(let i = 0;i < length;i++){
-    //         let ev = localEventList.shift();
-    //         estateList = NextFunctionTable[ev.EstateEvent.changeReason](ev,estateList);
-    //         historyEventList.unshift(ev);
-    //     }
-    //     this.showGraph(estateList);
-    //     this.generateTree(estateList);
-    //     this.setState({estateList,eventList,historyEventList,date});
-    // };
+        let searchEventId = searchEstates[0]['latest_event']
+        searchEstates = searchEstates[0]['estate_datas']
+        searchEstates = JSON.parse(searchEstates)
+
+        let polyList = [];
+        Object.keys(searchEstates).forEach(function(estateId) {
+            polyList.push({
+                id: estateId,
+                poly: EstateFormat.getPointArrFormat(searchEstates[estateId]['Points'])
+            })
+        })
+
+        this.setState({
+            currentEvent: searchEventId,
+            estates: searchEstates,
+            polyList: polyList
+        });
+        //畫圖 in cadastral資料夾
+        createMap(600,this.state.windowWidth,this,polyList);
+
+    }
+
+    preEvent = async () => {
+        if (this.state.currentEvent <= 1) { // check if current event is the first one or not
+            alert("no previous event QQ.");
+            return;
+        }
+
+        const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
+        
+        let preEvent = await fetch(backendServer + `/getPreviousEvent?event_id=${this.state.currentEvent}`).then((response) => {
+            return response.json();
+        }).then((myjson) => {
+            return myjson;
+        }).then();
+
+        let preEventId = preEvent[0]['event_id']
+        preEvent = preEvent[0]['event_data']
+        preEvent = JSON.parse(preEvent)
+        console.log(preEventId)
+        console.log(preEvent)
+
+        switch (preEvent['event']) {
+            case 'eventCreate':
+                console.log({
+                    event_type: preEvent['event'],
+                    operation_id: preEvent['returnValues']['operationId'],
+                    operation_type: preEvent['returnValues']['operationType'],
+                    estate_id: preEvent['returnValues'][0][0],
+                    points: preEvent['returnValues'][0][7]
+                })
+                break;
+            case 'eventDelete':
+                console.log({
+                    event_type: preEvent['event'],
+                    operation_id: preEvent['returnValues']['operationId'],
+                    operation_type: preEvent['returnValues']['operationType'],
+                    estate_id: preEvent['returnValues'][0],
+                })
+                break;
+            case 'eventMerge':
+                console.log({
+                    event_type: preEvent['event'],
+                    operation_id: preEvent['returnValues']['operationId'],
+                    operation_type: preEvent['returnValues']['operationType'],
+                    parent: preEvent['returnValues']['parentId'],
+                    child: preEvent['returnValues']['childId']
+                })
+                break;
+            case 'eventSplit':
+                console.log({
+                    event_type: preEvent['event'],
+                    operation_id: preEvent['returnValues']['operationId'],
+                    operation_type: preEvent['returnValues']['operationType'],
+                    parent: preEvent['returnValues']['parentId'],
+                    child: preEvent['returnValues']['childId']
+                })
+                break;
+            default:
+                console.log("something go wrong ...")
+        }
+
+        this.setState({
+            currentEvent: preEventId
+        })
+        console.log(this.state.currentEvent)
+
+        // latestEstates = latestEstates[0]['estate_datas']
+        // latestEstates = JSON.parse(latestEstates)
+
+        // let polyList = [];
+        // Object.keys(latestEstates).forEach(function(estateId) {
+            
+        //     polyList.push({
+        //         id: estateId,
+        //         poly: EstateFormat.getPointArrFormat(latestEstates[estateId]['Points'])
+        //     })
+        // })
+
+    }
+
+    nextEvent = async () => {
+        if (this.state.currentEvent >= this.state.latestEvent) { // check if current event is the first one or not
+            alert("no Next event QQ.");
+            return;
+        }
+
+        const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
+        
+        let preEvent = await fetch(backendServer + `/getNextEvent?event_id=${this.state.currentEvent}`).then((response) => {
+            return response.json();
+        }).then((myjson) => {
+            return myjson;
+        }).then();
+
+        let preEventId = preEvent[0]['event_id']
+        preEvent = preEvent[0]['event_data']
+        preEvent = JSON.parse(preEvent)
+        console.log(preEventId)
+        console.log(preEvent)
+
+        switch (preEvent['event']) {
+            case 'eventCreate':
+                console.log({
+                    event_type: preEvent['event'],
+                    operation_id: preEvent['returnValues']['operationId'],
+                    operation_type: preEvent['returnValues']['operationType'],
+                    estate_id: preEvent['returnValues'][0][0],
+                    points: preEvent['returnValues'][0][7]
+                })
+                break;
+            case 'eventDelete':
+                console.log({
+                    event_type: preEvent['event'],
+                    operation_id: preEvent['returnValues']['operationId'],
+                    operation_type: preEvent['returnValues']['operationType'],
+                    estate_id: preEvent['returnValues'][0],
+                })
+                break;
+            case 'eventMerge':
+                console.log({
+                    event_type: preEvent['event'],
+                    operation_id: preEvent['returnValues']['operationId'],
+                    operation_type: preEvent['returnValues']['operationType'],
+                    parent: preEvent['returnValues']['parentId'],
+                    child: preEvent['returnValues']['childId']
+                })
+                break;
+            case 'eventSplit':
+                console.log({
+                    event_type: preEvent['event'],
+                    operation_id: preEvent['returnValues']['operationId'],
+                    operation_type: preEvent['returnValues']['operationType'],
+                    parent: preEvent['returnValues']['parentId'],
+                    child: preEvent['returnValues']['childId']
+                })
+                break;
+            default:
+                console.log("something go wrong ...")
+        }
+
+        this.setState({
+            currentEvent: preEventId
+        })
+        console.log(this.state.currentEvent)
+
+        // let {estateList,eventList,historyEventList,date} = this.state;
+        // //console.log("next event")
+        // if(eventList.length === 0){
+        //     alert("This is the last one.")
+        //     //console.log("no more event");
+        //     return;
+        // }
+        // date.setDate(date.getDate() + 1);
+        // let localDate = date.toJSON().slice(0,10).split('-').join("");
+        // let localEventList = [];
+        // let length = 0;
+        // for(let i = 0;i < eventList.length;i++){
+        //     if(eventList[i].EstateEvent.changeDate !== localDate){
+        //         localEventList = eventList.slice(0,i);
+        //         eventList = eventList.slice(i);
+        //         break;
+        //     }
+        //     if(i === eventList.length - 1){
+        //         localEventList = eventList.slice();
+        //         eventList = [];
+        //         length += 1;
+        //         break;
+        //     }
+        //     length += 1;
+        // }
+        // for(let i = 0;i < length;i++){
+        //     let ev = localEventList.shift();
+        //     estateList = NextFunctionTable[ev.EstateEvent.changeReason](ev,estateList);
+        //     historyEventList.unshift(ev);
+        // }
+        // this.showGraph(estateList);
+        // this.generateTree(estateList);
+        // this.setState({estateList,eventList,historyEventList,date});
+    };
 
     componentDidMount = async () => {   
         const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
@@ -200,24 +249,41 @@ class Version extends Component{
             return myjson;
         }).then();
 
+        let latestEventId = latestEstates[0]['latest_event']
         latestEstates = latestEstates[0]['estate_datas']
         latestEstates = JSON.parse(latestEstates)
 
         let polyList = [];
         Object.keys(latestEstates).forEach(function(estateId) {
-            
             polyList.push({
                 id: estateId,
                 poly: EstateFormat.getPointArrFormat(latestEstates[estateId]['Points'])
             })
         })
 
-        
-        //畫圖//in cadastral資料夾
-        createMap(600,800,this,polyList);
-        this.setState({estates: latestEstates});
-        console.log(latestEstates)
+        this.setState({
+            windowWidth: window.innerWidth - 50,
+            latestEvent: latestEventId,
+            currentEvent: latestEventId,
+            estates: latestEstates,
+            polyList: polyList
+        });
+        console.log(latestEventId, latestEstates)
+        //畫圖 in cadastral資料夾
+        createMap(600,this.state.windowWidth,this,polyList);
+
+        window.addEventListener('resize', this.handleResize);
     };
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.handleResize);
+    }
+
+    handleResize() {
+        this.setState({ windowWidth: window.innerWidth - 50});
+        //畫圖 in cadastral資料夾
+        createMap(600,this.state.windowWidth,this,this.state.polyList);
+    }
 
     d3CLick = async (id) => {
         const {estates} = this.state;
@@ -236,8 +302,6 @@ class Version extends Component{
                 </div>
             )
         } else {
-            console.log(estateInfo)
-
             let date = estateInfo.Date;
             date = date.slice(0,4) + "-" + date.slice(4,6) + "-" + date.slice(6);
 
@@ -271,51 +335,38 @@ class Version extends Component{
         }
     }
 
-    // showList = () => {
-    //     // const { date } = this.state;
-    //     // if(date === null){
-    //     //     return <h3>等待輸入日期</h3>
-    //     // }
-
-    //     return(
-    //         <div id="versionResult">
-    //         {/* <button type="button" onClick={this.preEvent}>上一個事件</button>
-    //         <button type="button" onClick={this.nextEvent}>下一個事件</button> */}
-    //         </div>
-    //     );
-    // };
-
     render(){
         return (
             <div id="version" style={{
                 paddingTop: '20px',
                 paddingLeft: '20px',
-                paddingBottom: '300px',
+                paddingRight: '20px',
                 boxSizing: 'content-box',
               }}>
                 <div id="treeLayOut">
                 </div>
                 <div style={{
-                paddingBottom: '20px',
-                boxSizing: 'content-box',
-              }}>
-                    <form>
-                        <label>依據時間搜尋</label><br />
-                        <input type="text" id="dataSearch" size="20"></input><br />
-                        <button type="button" onClick={this.page}>查詢</button><br />
-                    </form>
-                    <div> 
-                        <div id = "mapdate"></div>
-                    </div>
+                    display: 'flex',
+                    paddingBottom: '20px',
+                    width: '300px',
+                    boxSizing: 'content-box',
+                }}>
+                    <input className="form-control mr-sm-2" type="search" placeholder="依據時間搜尋" aria-label="Search" onChange={(e) => {
+                        let date = e.target.value;
+                        date = date.substring(0, 4) + "-" + date.substring(4, 6) + "-" + date.substring(6, 8)
+                        this.setState({searchDate: date})
+                    }}></input>
+                    <button className="btn btn-outline-success my-2 my-sm-0" onClick={this.searchEstate}>查詢</button>
                 </div>      
                 <div id="esSvg"></div>
                 <div style={{
-                    padding: '20px',
+                    paddingTop: '20px',
+                    paddingBottom: '20px',
                     display: 'flex',
                     justifyContent: 'space-between'
                 }}>
-                    <button type="button" onClick={this.page}>Next Event</button><br />
-                    <button type="button" onClick={this.page}>Pre Event</button><br />
+                    <button type="button" className="btn btn-info" onClick={this.preEvent}>前一個事件</button>
+                    <button type="button" className="btn btn-info" onClick={this.nextEvent}>下一個事件</button>
                 </div>
                 <div>
                 {

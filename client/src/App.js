@@ -10,15 +10,15 @@ import MergeEstate from "./pages/MergeEstate";          // 合併土地
 import Update from "./pages/Update";                    // 測試
 
 import { ContextProvider } from "./Context";
-import {BrowserRouter as Router, Switch, Route, Link} from "react-router-dom";
+import {BrowserRouter as Router, Switch, Route, Link, NavLink} from "react-router-dom";
 import Web3 from 'web3';
-
 
 class App extends Component {
   state = { 
     web3: null, 
     accounts: null, 
-    contract: null 
+    contract: null ,
+    selectedPage: 0,
   };
 
   componentDidMount = async () => {
@@ -48,33 +48,63 @@ class App extends Component {
     return (
       <ContextProvider>
         <Router>
-          <div className="linkList" style={{
-            paddingLeft: '20px',
-            paddingTop: '20px',
-            boxSizing: 'content-box',
-          }}>
-              <Link to="/">首頁</Link><br />
+          <div className="linkList">
+            <nav className="navbar navbar-expand-sm navbar-dark bg-dark">
+              <Link to="/" className="navbar-brand">首頁</Link><br/>
+              <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <span className="navbar-toggler-icon"></span>
+              </button>
+              <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div className="navbar-nav">
+                  {/* <a className="nav-item nav-link active" href="www.google.com">Home <span className="sr-only">(current)</span></a>
+                  <a className="nav-item nav-link" href="#">Features</a> */}
+
+                  <NavLink to="/createEstate" activeClassName="nav-item nav-link active" className="nav-item nav-link">建立土地</NavLink>
+                  <NavLink to="/splitEstate" activeClassName="nav-item nav-link active" className="nav-item nav-link">分割土地</NavLink>
+                  <NavLink to="/nowEstateList" activeClassName="nav-item nav-link active" className="nav-item nav-link">土地現況</NavLink>
+                  <NavLink to="/searchFromChain" activeClassName="nav-item nav-link active" className="nav-item nav-link">土地驗證</NavLink>
+                  <NavLink to="/versionSearch" activeClassName="nav-item nav-link active" className="nav-item nav-link">版本查詢</NavLink>
+                  <NavLink to="/mergeEstate" activeClassName="nav-item nav-link active" className="nav-item nav-link">合併土地</NavLink>
+                  <NavLink to="/update" activeClassName="nav-item nav-link active" className="nav-item nav-link">測試</NavLink>
+                </div>
+              </div>
+            </nav>
+            <div className="jumbotron">
+              <h4 className="display-4">使用TWD97 121分帶 <span className="badge badge-secondary">EPSG 3826</span></h4>
+              <p className="lead">採用區塊鏈技術，永久保存地籍變更土地資訊，實作事件溯源讀寫分離機制</p>
               <p>Your account: {this.state.accounts[0]}</p>
-              <p>使用TWD97 121分帶：EPSG 3826</p>
-              <Link to="/createEstate">建立土地</Link><br /> 
-              <Link to="/splitEstate">分割土地</Link><br />
-              <Link to="/nowEstateList">土地現況</Link><br />
-              <Link to="/searchFromChain">土地驗證</Link><br />
-              <Link to="/versionSearch">版本查詢</Link><br />
-              <Link to="/mergeEstate">合併土地</Link><br />
-              <Link to="/update">測試</Link><br />
+            </div>
           </div>
-          <Switch>
+          <div style={{
+            minHeight: '500px',
+            paddingBottom: '50px',
+          }}>
+            <Switch>
               <Route exact path="/"><Home /></Route>
               <Route path="/createEstate"><CreateEstate web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} /></Route>
               <Route path="/splitEstate"><SplitEstate web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} /></Route>
               <Route path="/nowEstateList"><NowEstateList /></Route>
-              <Route exact path="/searchFromChain"><SearchFromChain web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} /></Route>
-              <Route exact path="/versionSearch"><Version /></Route>
+              <Route path="/searchFromChain"><SearchFromChain web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} /></Route>
+              <Route path="/versionSearch"><Version /></Route>
               <Route path="/mergeEstate"><MergeEstate web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} /></Route>
               <Route path='/update'><Update /></Route>
-          </Switch>
+            </Switch> 
+          </div>
         </Router>
+        <nav className="navbar navbar-dark bg-dark" style={{height: 100}}>
+          
+        </nav>
+        <nav className="navbar navbar-dark bg-dark" style={{
+          height: 50, 
+          display: 'felx', 
+          justifyContent: 'space-around'
+        }}>
+          <p className="navbar-brand font-italic" style={{
+            fontSize: 15,
+          }}>
+            Copyright © 2022 mozixreality at CF Lab in NCCU All right reserved
+          </p>
+        </nav>
       </ContextProvider>
     );
   }

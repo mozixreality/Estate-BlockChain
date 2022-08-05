@@ -105,7 +105,6 @@ async function addEvent(event) {
 async function create(blockdata) {
   let event = blockdata;
   let date = event.returnValues.param.createDate;
-  console.log(event)
   date = date.slice(0,4) + '-' + date.slice(4,6) + '-' + date.slice(6,8);
   let pmno = (event.returnValues.param.Id).slice(0,4);
   let pcno = (event.returnValues.param.Id).slice(4,8);
@@ -142,14 +141,21 @@ async function deleteFromDB(blockdata) {
 //delete from nowestatetable
 async function old(blockdata) {
   let event = blockdata;
-  let obj = JSON.parse(event.returnValues.data);
-  const INSERT_OLD_QUERY = `INSERT INTO olddatatable (EstateId,BeginDate,EndDate,PCNO,PMNO,SCNO,County,TownShip,Reason,ChangeTag,EstateData) VALUES ('${event.returnValues.Id}','${event.returnValues.begDate}','${event.returnValues.endDate}',${obj.data.pcno},${obj.data.pmno},${obj.data.scno},'${obj.data.county}','${obj.data.townShip}',${obj.data.reason},${0},'${event.returnValues.data}')`;
-  con.query(INSERT_OLD_QUERY,
+  let endDate = event.returnValues.endDate
+  endDate = endDate.slice(0,4) + "-" + endDate.slice(4,6) + "-" + endDate.slice(6);
+
+  let QUERY = `INSERT INTO olddatatable (EstateId, BeginDate, PCNO, PMNO, SCNO, Township, County, Reason, EstateData, ChangeTag) SELECT EstateId, CreateDate, PCNO, PMNO, SCNO, TownShip, County, Reason, EstateData, ChangeTag FROM nowestatetable WHERE EstateId = '${event.returnValues.Id}'`
+  con.query(QUERY,
+    function(err,res){
+      if(err) throw err;
+  })
+
+  QUERY = `UPDATE olddatatable SET EndDate = '${endDate}'`
+  con.query(QUERY,
     function(err,res){
       if(err) throw err;
       console.log("insert to oldtable sucess");
   })
-  
 }
 
 function merge(blockdata){
@@ -193,7 +199,46 @@ app.get('/getOne',(req,res) => {
 })
 
 app.get('/getLatestEstate',(req,res) => {
-  const QUERY = "SELECT estate_datas FROM estate_snapshot ORDER BY date DESC LIMIT 1";
+  const QUERY = "SELECT estate_datas, latest_event FROM estate_snapshot ORDER BY date DESC LIMIT 1";
+  con.query(QUERY, (err, results) => {
+      if(err){
+          return console.log(err);
+      }
+      else{
+          return res.send(results);
+      }
+  })
+})
+
+app.get('/getNearestEstate',(req,res) => {
+  const {date} = req.query;
+  const QUERY = `SELECT estate_datas, latest_event FROM estate_snapshot ORDER BY ABS(DATEDIFF('${date}', date)) ASC LIMIT 1`;
+  con.query(QUERY, (err, results) => {
+      if(err){
+          return console.log(err);
+      }
+      else{
+          return res.send(results);
+      }
+  })
+})
+
+app.get('/getPreviousEvent',(req, res) => {
+  const {event_id} = req.query;
+  const QUERY = `SELECT event_id, event_type, event_data FROM event_list WHERE event_id < ${event_id} ORDER BY event_id DESC LIMIT 1`;
+  con.query(QUERY, (err, results) => {
+      if(err){
+          return console.log(err);
+      }
+      else{
+          return res.send(results);
+      }
+  })
+})
+
+app.get('/getNextEvent',(req, res) => {
+  const {event_id} = req.query;
+  const QUERY = `SELECT event_id, event_type, event_data FROM event_list WHERE event_id > ${event_id} ORDER BY event_id ASC LIMIT 1`;
   con.query(QUERY, (err, results) => {
       if(err){
           return console.log(err);

@@ -81,7 +81,6 @@ class NowEstateList extends Component {
             //<Router></Router>
             <div style={{
                 paddingLeft: '20px',
-                paddingBottom: '300px',
                 boxSizing: 'content-box',
             }}> 
                 <div>
