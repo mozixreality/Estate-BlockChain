@@ -307,9 +307,16 @@ class Version extends Component{
                     <div> 
                         <div id = "mapdate"></div>
                     </div>
-                </div>
-                
+                </div>      
                 <div id="esSvg"></div>
+                <div style={{
+                    padding: '20px',
+                    display: 'flex',
+                    justifyContent: 'space-between'
+                }}>
+                    <button type="button" onClick={this.page}>Next Event</button><br />
+                    <button type="button" onClick={this.page}>Pre Event</button><br />
+                </div>
                 <div>
                 {
                     this.showEstateInfo()
