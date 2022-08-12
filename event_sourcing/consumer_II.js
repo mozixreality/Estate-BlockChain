@@ -30,32 +30,22 @@ consumer.subscribe({
     ], 
     fromBeginning: true 
 })
+
 consumer.run({
     eachBatchAutoResolve: false,
     eachBatch: async ({batch, resolveOffset, heartbeat}) => { // kafka batch default 16KB
-        // fetch the latest estates snapshot from db
-        let estates = {}
+        // truncate table
         let QUERY = `
-            SELECT estate_datas 
-            FROM estate_snapshot 
-            ORDER BY id DESC
-            LIMIT 1
+            TRUNCATE TABLE estate_snapshot;
         `;
-        sql.query(QUERY, (err, results) => {
+        sql.query(QUERY, (err) => {
             if (err) throw err;
-            if (results.length != 0){
-                estates = JSON.parse(results[0]['estate_datas'])
-            }   
         });
 
-        // handle events to build a new snapshot
+        // rebuild estates
+        let estates = {}
         let latestEventId = 0;
         for (let message of batch.messages) {
-            // 5 event in each snapshot
-            if (message.offset - batch.firstOffset() >= 5) {
-                break;
-            } 
-
             let event = parseEvent(message.value.toString())
             latestEventId = event.id
 
@@ -67,14 +57,17 @@ consumer.run({
                     delete estates[event.estateID]
                     break;
             }
-            
+
             resolveOffset(message.offset)
             await heartbeat()
+
+            // exit after handling the last message
+            if (message.offset == batch.lastOffset()) {
+                break;
+            }
         }
 
-        consumer.stop()
-
-        // insert the new snapshot into db
+        // insert the rebuild estates into db
         QUERY = `
             INSERT INTO estate_snapshot (
                 estate_datas,
@@ -86,13 +79,10 @@ consumer.run({
         `;
         sql.query(QUERY,(err) => {
             if (err) throw err;
-            console.log("insert snapshot sucess");
+            console.log("rebuild estate sucess");
             process.exit(0);
         })
     },
-}).then(() => {
-    console.log("no new message")
-    process.exit(0);
 })
 
 function parseEvent(event) {
