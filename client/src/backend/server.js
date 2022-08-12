@@ -189,10 +189,9 @@ app.get('/getOne',(req,res) => {
   const {id} = req.query;
   const SELECT_QUERY = `SELECT EstateData FROM nowestatetable WHERE EstateId='${id}'`;
   con.query(SELECT_QUERY,(err,results) => {
-      if(err){
+      if (err) {
           return console.log(err);
-      }
-      else{
+      } else {
           return res.send(results);
       }
   });
@@ -201,10 +200,9 @@ app.get('/getOne',(req,res) => {
 app.get('/getLatestEstate',(req,res) => {
   const QUERY = "SELECT estate_datas, latest_event FROM estate_snapshot ORDER BY date DESC LIMIT 1";
   con.query(QUERY, (err, results) => {
-      if(err){
+      if (err) {
           return console.log(err);
-      }
-      else{
+      } else {
           return res.send(results);
       }
   })
@@ -214,36 +212,21 @@ app.get('/getNearestEstate',(req,res) => {
   const {date} = req.query;
   const QUERY = `SELECT estate_datas, latest_event FROM estate_snapshot ORDER BY ABS(DATEDIFF('${date}', date)) ASC LIMIT 1`;
   con.query(QUERY, (err, results) => {
-      if(err){
+      if (err) {
           return console.log(err);
-      }
-      else{
+      } else {
           return res.send(results);
       }
   })
 })
 
-app.get('/getPreviousEvent',(req, res) => {
+app.get('/getEvent',(req, res) => {
   const {event_id} = req.query;
-  const QUERY = `SELECT event_id, event_type, event_data FROM event_list WHERE event_id < ${event_id} ORDER BY event_id DESC LIMIT 1`;
+  const QUERY = `SELECT event_id, event_type, event_data FROM event_list WHERE event_id = ${event_id}`;
   con.query(QUERY, (err, results) => {
-      if(err){
+      if (err) {
           return console.log(err);
-      }
-      else{
-          return res.send(results);
-      }
-  })
-})
-
-app.get('/getNextEvent',(req, res) => {
-  const {event_id} = req.query;
-  const QUERY = `SELECT event_id, event_type, event_data FROM event_list WHERE event_id > ${event_id} ORDER BY event_id ASC LIMIT 1`;
-  con.query(QUERY, (err, results) => {
-      if(err){
-          return console.log(err);
-      }
-      else{
+      } else {
           return res.send(results);
       }
   })
@@ -252,22 +235,21 @@ app.get('/getNextEvent',(req, res) => {
 app.get('/getNowEstate',(req,res) => {
   const SELECT_NOW_QUERY = "SELECT EstateData FROM nowestatetable";
   con.query(SELECT_NOW_QUERY, (err, results) => {
-      if(err){
+      if (err) {
           return console.log(err);
-      }
-      else{
+      } else {
           return res.send(results);
       }
   })
 })
 
 app.get('/getOldEstate',(req,res) => {
-  const SELECT_NOW_QUERY = "SELECT EstateData FROM olddatatable";
-  con.query(SELECT_NOW_QUERY, (err, results) => {
-      if(err){
+  const {estate_id} = req.query;
+  const QUERY = `SELECT EstateData FROM olddatatable WHERE EstateId = '${estate_id}'`;
+  con.query(QUERY, (err, results) => {
+      if (err) {
           return console.log(err);
-      }
-      else{
+      } else {
           return res.send(results);
       }
   })
@@ -277,10 +259,9 @@ app.get('/searchFromNow', (req,res) => {
   const { date } = req.query;
   const SEARCH_QUERY = `SELECT EstateData FROM nowestatetable WHERE CreateDate <= '${date}'`;
   con.query(SEARCH_QUERY, (err, results) => {
-      if(err){
+      if (err) {
           return console.log(err);
-      }
-      else{
+      } else {
           return res.send(results);
       }
   })
@@ -290,10 +271,9 @@ app.get('/searchFromOld', (req,res) => {
   const { date } = req.query;
   const SEARCH_QUERY = `SELECT EstateData FROM olddatatable WHERE BeginDate <= '${date}' and EndDate > '${date}'`;
   con.query(SEARCH_QUERY, (err, results) => {
-      if(err){
+      if (err) {
           return console.log(err);
-      }
-      else{
+      } else {
           return res.send(results);
       }
   })
@@ -304,21 +284,18 @@ app.get('/searchUniverse', (req,res) => {
   const SEARCHFROMOLD = `SELECT EstateData FROM olddatatable WHERE EstateId='${id}'`;
   const SEARCHFROMNOW = `SELECT EstateData FROM nowestatetable WHERE EstateId='${id}'`;
   con.query(SEARCHFROMOLD, (err,results) => {
-      if(err){
+      if (err) {
           return res.send(err);
-      }
-      else{
+      } else {
           if(results.length === 0){
               con.query(SEARCHFROMNOW,(err,results) => {
-                  if(err){
+                  if (err) {
                       return res.send(err);
-                  }
-                  else{
+                  } else {
                       return res.send(results);
                   }
               })
-          }
-          else{
+          } else {
               return res.send(results);
           }
       }

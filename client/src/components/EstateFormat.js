@@ -59,6 +59,20 @@ var EstateFormat = {
         return poly;
     },
 
+    getEstateInfoFormat : function (event) {
+        return {
+            EstateID: event[0][0],
+            PMNO: event[0][0].substring(0,4),
+            PCNO: event[0][0].substring(4,8),
+            SCNO: event[0][0].substring(8,12),
+            Date: event[0][1],
+            Country: event[0][3],
+            TownShip: event[0][4],
+            Reason: event[0][5],
+            Points: event[0][7]
+        }
+    },
+
     getPointArrFormat : function (pointsArr) {
         let poly = [];
         for(let i = 0;i < pointsArr.length;i++){

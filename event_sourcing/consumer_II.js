@@ -67,6 +67,7 @@ consumer.run({
             }
         }
 
+        // console.log(estates)
         // insert the rebuild estates into db
         QUERY = `
             INSERT INTO estate_snapshot (

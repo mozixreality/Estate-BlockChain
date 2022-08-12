@@ -19,10 +19,11 @@ class Version extends Component{
             estates: [],
             polyList: [],
             estateInfo: null,
-            latestEvent: 0,
-            currentEvent: 0
+            latestEventId: 0,
+
+            curEvent: null,
+            nextEvent: null,
         };
-        this.handleResize = this.handleResize.bind(this);
     }
 
     searchEstate = async () => {
@@ -51,193 +52,172 @@ class Version extends Component{
             })
         })
 
+        let searchEvent = await fetch(backendServer + `/getEvent?event_id=${searchEventId}`).then((response) => {
+            return response.json();
+        }).then((myjson) => {
+            return myjson[0];
+        }).then();
+
         this.setState({
-            currentEvent: searchEventId,
+            curEvent: searchEvent,
             estates: searchEstates,
             polyList: polyList
         });
         //畫圖 in cadastral資料夾
-        createMap(600,this.state.windowWidth,this,polyList);
+        createMap(600,800,this,polyList);
 
     }
 
     preEvent = async () => {
-        if (this.state.currentEvent <= 1) { // check if current event is the first one or not
+        const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
+        const {curEvent, estates, polyList} = this.state
+        
+        if (curEvent == null) { // check if current event is the first one or not
             alert("no previous event QQ.");
             return;
         }
 
-        const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
-        
-        let preEvent = await fetch(backendServer + `/getPreviousEvent?event_id=${this.state.currentEvent}`).then((response) => {
-            return response.json();
-        }).then((myjson) => {
-            return myjson;
-        }).then();
+        console.log(curEvent)
+        let curEventId = curEvent['event_id']
+        let curEventData = curEvent['event_data']
+        curEventData = JSON.parse(curEventData)
+        console.log(curEventId)
+        console.log(curEventData)
+        console.log("test")
+        console.log(typeof(estates), typeof(polyList))
+        console.log(estates, polyList)
 
-        let preEventId = preEvent[0]['event_id']
-        preEvent = preEvent[0]['event_data']
-        preEvent = JSON.parse(preEvent)
-        console.log(preEventId)
-        console.log(preEvent)
-
-        switch (preEvent['event']) {
+        switch (curEventData['event']) {
             case 'eventCreate':
                 console.log({
-                    event_type: preEvent['event'],
-                    operation_id: preEvent['returnValues']['operationId'],
-                    operation_type: preEvent['returnValues']['operationType'],
-                    estate_id: preEvent['returnValues'][0][0],
-                    points: preEvent['returnValues'][0][7]
+                    event_type: curEventData['event'],
+                    operation_id: curEventData['returnValues']['operationId'],
+                    operation_type: curEventData['returnValues']['operationType'],
+                    estate_id: curEventData['returnValues'][0][0],
+                    points: curEventData['returnValues'][0][7]
                 })
+                delete estates[curEventData['returnValues'][0][0]]
+                for( var i = 0; i < polyList.length; i++){ 
+                    if (polyList[i].id == curEventData['returnValues'][0][0]) { 
+                        polyList.splice(i, 1); 
+                    }
+                
+                }
+                delete polyList[curEventData['returnValues'][0][0]]
+                createMap(600,800,this,polyList);
                 break;
             case 'eventDelete':
                 console.log({
-                    event_type: preEvent['event'],
-                    operation_id: preEvent['returnValues']['operationId'],
-                    operation_type: preEvent['returnValues']['operationType'],
-                    estate_id: preEvent['returnValues'][0],
+                    event_type: curEventData['event'],
+                    operation_id: curEventData['returnValues']['operationId'],
+                    operation_type: curEventData['returnValues']['operationType'],
+                    estate_id: curEventData['returnValues'][0],
                 })
                 break;
             case 'eventMerge':
                 console.log({
-                    event_type: preEvent['event'],
-                    operation_id: preEvent['returnValues']['operationId'],
-                    operation_type: preEvent['returnValues']['operationType'],
-                    parent: preEvent['returnValues']['parentId'],
-                    child: preEvent['returnValues']['childId']
+                    event_type: curEventData['event'],
+                    operation_id: curEventData['returnValues']['operationId'],
+                    operation_type: curEventData['returnValues']['operationType'],
+                    parent: curEventData['returnValues']['parentId'],
+                    child: curEventData['returnValues']['childId']
                 })
                 break;
             case 'eventSplit':
                 console.log({
-                    event_type: preEvent['event'],
-                    operation_id: preEvent['returnValues']['operationId'],
-                    operation_type: preEvent['returnValues']['operationType'],
-                    parent: preEvent['returnValues']['parentId'],
-                    child: preEvent['returnValues']['childId']
+                    event_type: curEventData['event'],
+                    operation_id: curEventData['returnValues']['operationId'],
+                    operation_type: curEventData['returnValues']['operationType'],
+                    parent: curEventData['returnValues']['parentId'],
+                    child: curEventData['returnValues']['childId']
                 })
                 break;
             default:
                 console.log("something go wrong ...")
         }
 
+        let event = await fetch(backendServer + `/getEvent?event_id=${curEventId - 1}`).then((response) => {
+            return response.json();
+        }).then((myjson) => {
+            return myjson[0];
+        }).then();
         this.setState({
-            currentEvent: preEventId
+            curEvent: event,
+            nextEvent: curEvent
         })
-        console.log(this.state.currentEvent)
-
-        // latestEstates = latestEstates[0]['estate_datas']
-        // latestEstates = JSON.parse(latestEstates)
-
-        // let polyList = [];
-        // Object.keys(latestEstates).forEach(function(estateId) {
-            
-        //     polyList.push({
-        //         id: estateId,
-        //         poly: EstateFormat.getPointArrFormat(latestEstates[estateId]['Points'])
-        //     })
-        // })
-
     }
 
     nextEvent = async () => {
-        if (this.state.currentEvent >= this.state.latestEvent) { // check if current event is the first one or not
+        const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
+        const {curEvent, nextEvent, latestEventId, estates, polyList} = this.state
+        if (curEvent != null && curEvent.event_id >= latestEventId) { // check if current event is the first one or not
             alert("no Next event QQ.");
             return;
         }
 
-        const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
-        
-        let preEvent = await fetch(backendServer + `/getNextEvent?event_id=${this.state.currentEvent}`).then((response) => {
-            return response.json();
-        }).then((myjson) => {
-            return myjson;
-        }).then();
+        let curEventId = nextEvent['event_id']
+        let curEventData = nextEvent['event_data']
+        curEventData = JSON.parse(curEventData)
+        console.log(curEventId)
+        console.log(curEventData)
 
-        let preEventId = preEvent[0]['event_id']
-        preEvent = preEvent[0]['event_data']
-        preEvent = JSON.parse(preEvent)
-        console.log(preEventId)
-        console.log(preEvent)
-
-        switch (preEvent['event']) {
+        switch (curEventData['event']) {
             case 'eventCreate':
                 console.log({
-                    event_type: preEvent['event'],
-                    operation_id: preEvent['returnValues']['operationId'],
-                    operation_type: preEvent['returnValues']['operationType'],
-                    estate_id: preEvent['returnValues'][0][0],
-                    points: preEvent['returnValues'][0][7]
+                    event_type: curEventData['event'],
+                    operation_id: curEventData['returnValues']['operationId'],
+                    operation_type: curEventData['returnValues']['operationType'],
+                    estate_id: curEventData['returnValues'][0][0],
+                    points: curEventData['returnValues'][0][7]
                 })
+                polyList.push({
+                    id: curEventData['returnValues'][0][0],
+                    poly: EstateFormat.getPointArrFormat(curEventData['returnValues'][0][7])
+                })
+                estates[curEventData['returnValues'][0][0]] = EstateFormat.getEstateInfoFormat(curEventData['returnValues'])
+                //畫圖 in cadastral資料夾
+                createMap(600,800,this,polyList);
                 break;
             case 'eventDelete':
                 console.log({
-                    event_type: preEvent['event'],
-                    operation_id: preEvent['returnValues']['operationId'],
-                    operation_type: preEvent['returnValues']['operationType'],
-                    estate_id: preEvent['returnValues'][0],
+                    event_type: curEventData['event'],
+                    operation_id: curEventData['returnValues']['operationId'],
+                    operation_type: curEventData['returnValues']['operationType'],
+                    estate_id: curEventData['returnValues'][0],
                 })
                 break;
             case 'eventMerge':
                 console.log({
-                    event_type: preEvent['event'],
-                    operation_id: preEvent['returnValues']['operationId'],
-                    operation_type: preEvent['returnValues']['operationType'],
-                    parent: preEvent['returnValues']['parentId'],
-                    child: preEvent['returnValues']['childId']
+                    event_type: curEventData['event'],
+                    operation_id: curEventData['returnValues']['operationId'],
+                    operation_type: curEventData['returnValues']['operationType'],
+                    parent: curEventData['returnValues']['parentId'],
+                    child: curEventData['returnValues']['childId']
                 })
                 break;
             case 'eventSplit':
                 console.log({
-                    event_type: preEvent['event'],
-                    operation_id: preEvent['returnValues']['operationId'],
-                    operation_type: preEvent['returnValues']['operationType'],
-                    parent: preEvent['returnValues']['parentId'],
-                    child: preEvent['returnValues']['childId']
+                    event_type: curEventData['event'],
+                    operation_id: curEventData['returnValues']['operationId'],
+                    operation_type: curEventData['returnValues']['operationType'],
+                    parent: curEventData['returnValues']['parentId'],
+                    child: curEventData['returnValues']['childId']
                 })
                 break;
             default:
                 console.log("something go wrong ...")
         }
 
+        let event = await fetch(backendServer + `/getEvent?event_id=${curEventId + 1}`).then((response) => {
+            return response.json();
+        }).then((myjson) => {
+            return myjson[0];
+        }).then();
         this.setState({
-            currentEvent: preEventId
+            curEvent: nextEvent,
+            nextEvent: event
         })
-        console.log(this.state.currentEvent)
-
-        // let {estateList,eventList,historyEventList,date} = this.state;
-        // //console.log("next event")
-        // if(eventList.length === 0){
-        //     alert("This is the last one.")
-        //     //console.log("no more event");
-        //     return;
-        // }
-        // date.setDate(date.getDate() + 1);
-        // let localDate = date.toJSON().slice(0,10).split('-').join("");
-        // let localEventList = [];
-        // let length = 0;
-        // for(let i = 0;i < eventList.length;i++){
-        //     if(eventList[i].EstateEvent.changeDate !== localDate){
-        //         localEventList = eventList.slice(0,i);
-        //         eventList = eventList.slice(i);
-        //         break;
-        //     }
-        //     if(i === eventList.length - 1){
-        //         localEventList = eventList.slice();
-        //         eventList = [];
-        //         length += 1;
-        //         break;
-        //     }
-        //     length += 1;
-        // }
-        // for(let i = 0;i < length;i++){
-        //     let ev = localEventList.shift();
-        //     estateList = NextFunctionTable[ev.EstateEvent.changeReason](ev,estateList);
-        //     historyEventList.unshift(ev);
-        // }
-        // this.showGraph(estateList);
-        // this.generateTree(estateList);
-        // this.setState({estateList,eventList,historyEventList,date});
+        console.log(nextEvent, event)
     };
 
     componentDidMount = async () => {   
@@ -261,29 +241,23 @@ class Version extends Component{
             })
         })
 
+        let curEvent = await fetch(backendServer + `/getEvent?event_id=${latestEventId}`).then((response) => {
+            return response.json();
+        }).then((myjson) => {
+            return myjson[0];
+        }).then();
+    
         this.setState({
             windowWidth: window.innerWidth - 50,
-            latestEvent: latestEventId,
-            currentEvent: latestEventId,
             estates: latestEstates,
-            polyList: polyList
+            polyList: polyList,
+            latestEventId: latestEventId,
+            curEvent: curEvent,
         });
-        console.log(latestEventId, latestEstates)
+        console.log(latestEventId, latestEstates, curEvent)
         //畫圖 in cadastral資料夾
-        createMap(600,this.state.windowWidth,this,polyList);
-
-        window.addEventListener('resize', this.handleResize);
+        createMap(600,800,this,polyList);
     };
-
-    componentWillUnmount() {
-        window.removeEventListener('resize', this.handleResize);
-    }
-
-    handleResize() {
-        this.setState({ windowWidth: window.innerWidth - 50});
-        //畫圖 in cadastral資料夾
-        createMap(600,this.state.windowWidth,this,this.state.polyList);
-    }
 
     d3CLick = async (id) => {
         const {estates} = this.state;
@@ -315,23 +289,70 @@ class Version extends Component{
                 <div id="County">County: {estateInfo.Country}</div>
                 <div id="TownShip">TownShip: {estateInfo.TownShip}</div>
                 <div id="reason">Reason: {estateInfo.Reason}</div>
-                {/*<div id="from">From:<br /> */}
-                {/* {    
-                    data.parents.map((val,k) => {
-                        return <p key={k}>ID: {val}</p>
-                    })   
-                }
-                </div>
-                <div id="to">To:<br />
-                {
-                    data.children.map((val,k) => {
-                        return <p key={k}>ID: {val}</p>
-                    })
-                } 
-                </div>
-                */}
                 </div>
             )
+        }
+    }
+
+    showEvent = (event) => {
+        var eventId = null
+        var eventData = null
+        if (event != null) {
+            eventId = event['event_id']
+            eventData = event['event_data']
+            eventData = JSON.parse(eventData)
+            switch (eventData['event']) {
+                case 'eventCreate':
+                    return (
+                        <ul className="list-group d-flex justify-content-between align-items-center" style={{flexDirection: 'column'}}>
+                            <li className="list-group-item list-group-item-action list-group-item-success">Event Create</li>
+                            <li className="list-group-item list-group-item-action">Operation ID: {eventData['returnValues']['operationId']}</li>
+                            <li className="list-group-item list-group-item-action">Operation Type: {eventData['returnValues']['operationType']}</li>
+                            <li className="list-group-item list-group-item-action">Estate ID: {eventData['returnValues'][0][0]}</li>
+                        </ul>
+                    )
+                case 'eventDelete':
+                    return (
+                        <ul className="list-group d-flex justify-content-between align-items-center" style={{flexDirection: 'column'}}>
+                            <li className="list-group-item list-group-item-action list-group-item-danger">Event Delete</li>
+                            <li className="list-group-item list-group-item-action">Operation ID: {eventData['returnValues']['operationId']}</li>
+                            <li className="list-group-item list-group-item-action">Operation Type: {eventData['returnValues']['operationType']}</li>
+                            <li className="list-group-item list-group-item-action">Estate ID: {eventData['returnValues'][0]}</li>
+                        </ul>
+                    )
+                case 'eventMerge':
+                    return (
+                        <ul className="list-group d-flex justify-content-between align-items-center" style={{flexDirection: 'column'}}>
+                            <li className="list-group-item list-group-item-action list-group-item-primary">Event Merge</li>
+                            <li className="list-group-item list-group-item-action">Operation ID: {eventData['returnValues']['operationId']}</li>
+                            <li className="list-group-item list-group-item-action">Operation Type: {eventData['returnValues']['operationType']}</li>
+                            <li className="list-group-item list-group-item-action">Parent ID: {eventData['returnValues']['parentId']}</li>
+                            <li className="list-group-item list-group-item-action">Child ID: {eventData['returnValues']['childId']}</li>
+                        </ul>
+                    )
+                case 'eventSplit':
+                    return (
+                        <ul className="list-group d-flex justify-content-between align-items-center" style={{flexDirection: 'column'}}>
+                            <li className="list-group-item list-group-item-action list-group-item-warning">Event Split</li>
+                            <li className="list-group-item list-group-item-action">Operation ID: {eventData['returnValues']['operationId']}</li>
+                            <li className="list-group-item list-group-item-action">Operation Type: {eventData['returnValues']['operationType']}</li>
+                            <li className="list-group-item list-group-item-action">Parent ID: {eventData['returnValues']['parentId']}</li>
+                            <li className="list-group-item list-group-item-action">Child ID: {eventData['returnValues']['childId']}</li>
+                        </ul>
+                    )
+                default:
+                    return (
+                        <ul className="list-group d-flex justify-content-between align-items-center">
+                            <li className="list-group-item list-group-item-action list-group-item-dark">something is going wrong ...</li>
+                        </ul>
+                    )
+            }
+        } else {
+            return (
+                <ul className="list-group d-flex justify-content-between align-items-center">
+                    <li className="list-group-item list-group-item-action list-group-item-dark">No more event</li>
+                </ul>
+            )   
         }
     }
 
@@ -362,16 +383,30 @@ class Version extends Component{
                 <div style={{
                     paddingTop: '20px',
                     paddingBottom: '20px',
+                    maxWidth: 800,
                     display: 'flex',
                     justifyContent: 'space-between'
                 }}>
                     <button type="button" className="btn btn-info" onClick={this.preEvent}>前一個事件</button>
                     <button type="button" className="btn btn-info" onClick={this.nextEvent}>下一個事件</button>
                 </div>
+                <div style={{
+                    paddingTop: '20px',
+                    paddingBottom: '20px',
+                    minHeight: 300,
+                    maxWidth: 800,
+                    display: 'flex',
+                    justifyContent: 'space-between'
+                }}>
+                    <ul className="list-group" style={{minWidth: '200px'}}>
+                        { this.showEvent(this.state.curEvent) }
+                    </ul>
+                    <ul className="list-group" style={{minWidth: '200px'}}>
+                        { this.showEvent(this.state.nextEvent) }
+                    </ul>
+                </div>
                 <div>
-                {
-                    this.showEstateInfo()
-                }
+                    { this.showEstateInfo() }
                 </div>
                 <div>
                 {/* {
