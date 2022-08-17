@@ -9,8 +9,8 @@ ACCOUNT_PASSWD=Abcd1234
 help:
 	@echo "make init: create a new private chain"
 	@echo "make new-account: create a new block chain account"
-	@echo "make migrate: migrate contract with truffle (must start geth first)"
 	@echo "make start-geth: start your private chain"
+	@echo "make migrate: migrate contract with truffle (must start geth first)"
 	@echo "make start-frontend: start your frontend server"
 	@echo "make start-backend: start your backend server"
 	@echo "make start-zookeeper: start zookeeper server"
@@ -25,9 +25,9 @@ init:
 
 new-account:
 ifdef passwd
-	geth account new --password <(echo $(passwd))
+	geth account new --datadir $(BLOCK_DATA) --password <(echo $(passwd))
 else
-	geth account new --password <(echo $(ACCOUNT_PASSWD))
+	geth account new --datadir $(BLOCK_DATA) --password <(echo $(ACCOUNT_PASSWD))
 endif
 
 migrate:
@@ -37,13 +37,12 @@ else
 	truffle migrate --reset --network development
 endif
 
-
 start-geth:
 	geth --datadir $(BLOCK_DATA) --networkid $(NETWORK_ID) \
-	--ws --wsport 8546 --wsorigins "*" \
-	--rpc --rpccorsdomain "*" --nodiscover \
-	--rpcapi="eth,web3,net,personal,admin,txpool,miner,db,personal" \
-	--unlock "0" --password <(echo $(ACCOUNT_PASSWD)) \
+	--ws --ws.port 8546 --ws.origins "*" \
+	--http --http.corsdomain "*" --nodiscover \
+	--http.api="eth,web3,net,personal,admin,txpool,miner,personal" \
+	--allow-insecure-unlock --unlock "0" --password <(echo $(ACCOUNT_PASSWD)) \
 	--miner.gasprice '0' \
 	console
 

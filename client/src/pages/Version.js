@@ -150,7 +150,7 @@ class Version extends Component{
     nextEvent = async () => {
         const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
         const {curEvent, nextEvent, latestEventId, estates, polyList} = this.state
-        if (curEvent != null && curEvent.event_id >= latestEventId) { // check if current event is the first one or not
+        if (curEvent == null || (curEvent != null && curEvent.event_id >= latestEventId)) { // check if current event is the first one or not
             alert("no Next event QQ.");
             return;
         }
@@ -228,6 +228,10 @@ class Version extends Component{
         }).then((myjson) => {
             return myjson;
         }).then();
+
+        if (latestEstates.length === 0) {
+            return
+        }
 
         let latestEventId = latestEstates[0]['latest_event']
         latestEstates = latestEstates[0]['estate_datas']

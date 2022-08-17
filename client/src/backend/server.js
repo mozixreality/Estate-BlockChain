@@ -18,15 +18,17 @@ const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8546'
 
 const BackendServerPort = process.env.REACT_APP_BACKEND_SERVER_PORT
 const MySQLHost = process.env.MYSQL_HOST
+const MySQLPort = process.env.MYSQL_PORT
 const MySQLUser = process.env.MYSQL_USER
 const MySQLPassword = process.env.MYSQL_PASSWORD
 const MySQLDatabase = process.env.MYSQL_DATABASE
 
 const con = mysql.createConnection({
   host: MySQLHost,
+  port: MySQLPort,
   user: MySQLUser,
   password: MySQLPassword,
-  database: MySQLDatabase
+  database: MySQLDatabase,
 });
 
 con.connect(function(err){
