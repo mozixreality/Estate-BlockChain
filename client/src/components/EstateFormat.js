@@ -59,7 +59,21 @@ var EstateFormat = {
         return poly;
     },
 
-    getEstateInfoFormat : function (event) {
+    getEstateInfoFormat : function (estate) {
+        return {
+            EstateID: estate.id,
+            PMNO: estate.data.pmno,
+            PCNO: estate.data.pcno,
+            SCNO: estate.data.scno,
+            Date: estate.data.begDate,
+            Country: estate.data.country,
+            TownShip: estate.data.townShip,
+            Reason: estate.data.reason,
+            Points: estate.polygon.points
+        }
+    },
+
+    getEventEstateInfoFormat : function (event) {
         return {
             EstateID: event[0][0],
             PMNO: event[0][0].substring(0,4),

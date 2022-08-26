@@ -71,7 +71,6 @@ class Version extends Component{
     preEvent = async () => {
         const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
         const {curEvent, estates, polyList} = this.state
-        
         if (curEvent == null) { // check if current event is the first one or not
             alert("no previous event QQ.");
             return;
@@ -89,30 +88,42 @@ class Version extends Component{
 
         switch (curEventData['event']) {
             case 'eventCreate':
-                console.log({
+                let eventCreate = {
                     event_type: curEventData['event'],
                     operation_id: curEventData['returnValues']['operationId'],
                     operation_type: curEventData['returnValues']['operationType'],
                     estate_id: curEventData['returnValues'][0][0],
                     points: curEventData['returnValues'][0][7]
-                })
-                delete estates[curEventData['returnValues'][0][0]]
+                }
+                delete estates[eventCreate.estate_id]
                 for( var i = 0; i < polyList.length; i++){ 
-                    if (polyList[i].id == curEventData['returnValues'][0][0]) { 
+                    if (polyList[i].id == eventCreate.estate_id) { 
                         polyList.splice(i, 1); 
                     }
                 
                 }
-                delete polyList[curEventData['returnValues'][0][0]]
                 createMap(600,800,this,polyList);
                 break;
             case 'eventDelete':
-                console.log({
+                let eventDelete = {
                     event_type: curEventData['event'],
                     operation_id: curEventData['returnValues']['operationId'],
                     operation_type: curEventData['returnValues']['operationType'],
                     estate_id: curEventData['returnValues'][0],
+                }
+                let estate_id = eventDelete.estate_id
+                let estate = await fetch(backendServer + `/getOldEstate?estate_id=${estate_id}`).then((response) => {
+                    return response.json();
+                }).then((myjson) => {
+                    return JSON.parse(myjson[0]['EstateData']);
+                }).then();
+                polyList.push({
+                    id: estate_id,
+                    poly: EstateFormat.getPointArrFormat(estate.polygon.points)
                 })
+                estates[estate_id] = EstateFormat.getEstateInfoFormat(estate)
+                // //畫圖 in cadastral資料夾
+                createMap(600,800,this,polyList);
                 break;
             case 'eventMerge':
                 console.log({
@@ -150,7 +161,8 @@ class Version extends Component{
     nextEvent = async () => {
         const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
         const {curEvent, nextEvent, latestEventId, estates, polyList} = this.state
-        if (curEvent == null || (curEvent != null && curEvent.event_id >= latestEventId)) { // check if current event is the first one or not
+        console.log("event", curEvent, nextEvent, latestEventId)
+        if (nextEvent == null || (curEvent != null && curEvent.event_id >= latestEventId)) { // check if current event is the first one or not
             alert("no Next event QQ.");
             return;
         }
@@ -158,33 +170,39 @@ class Version extends Component{
         let curEventId = nextEvent['event_id']
         let curEventData = nextEvent['event_data']
         curEventData = JSON.parse(curEventData)
-        console.log(curEventId)
-        console.log(curEventData)
 
         switch (curEventData['event']) {
             case 'eventCreate':
-                console.log({
+                let eventCreate = {
                     event_type: curEventData['event'],
                     operation_id: curEventData['returnValues']['operationId'],
                     operation_type: curEventData['returnValues']['operationType'],
                     estate_id: curEventData['returnValues'][0][0],
                     points: curEventData['returnValues'][0][7]
-                })
+                }
                 polyList.push({
-                    id: curEventData['returnValues'][0][0],
-                    poly: EstateFormat.getPointArrFormat(curEventData['returnValues'][0][7])
+                    id: eventCreate.estate_id,
+                    poly: EstateFormat.getPointArrFormat(eventCreate.points)
                 })
-                estates[curEventData['returnValues'][0][0]] = EstateFormat.getEstateInfoFormat(curEventData['returnValues'])
+                estates[eventCreate.estate_id] = EstateFormat.getEventEstateInfoFormat(curEventData['returnValues'])
                 //畫圖 in cadastral資料夾
                 createMap(600,800,this,polyList);
                 break;
             case 'eventDelete':
-                console.log({
+                let eventDelete = {
                     event_type: curEventData['event'],
                     operation_id: curEventData['returnValues']['operationId'],
                     operation_type: curEventData['returnValues']['operationType'],
                     estate_id: curEventData['returnValues'][0],
-                })
+                }
+                delete estates[eventDelete.estate_id]
+                for( var i = 0; i < polyList.length; i++){ 
+                    if (polyList[i].id == eventDelete.estate_id) { 
+                        polyList.splice(i, 1); 
+                    }
+                
+                }
+                createMap(600,800,this,polyList);
                 break;
             case 'eventMerge':
                 console.log({
