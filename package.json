@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "kafkajs": "^2.2.0",
     "mysql": "^2.18.1",
     "mysql2": "^2.3.3"
   }

@@ -23,19 +23,55 @@ const EventType = {
     Splite: 3,
 }
 
-consumer.connect()
-consumer.subscribe({ 
-    topics: [
-        KafkaConnectTopic.EventList,
-    ], 
-    fromBeginning: true 
+const sql = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "estate_blockchain"
+});
+sql.connect(function (err) {
+    if (err) throw err;
+    console.log("SQL Connected!");
 })
 
+var estates = {}, latestOffset = -1
+var QUERY = `
+    SELECT estate_datas, latest_offset
+    FROM estate_snapshot 
+    ORDER BY date DESC
+    LIMIT 1
+`;
+sql.query(QUERY, (err, results) => {
+    if (err) throw err;
+    if (results.length != 0){
+        estates = JSON.parse(results[0]['estate_datas'])
+        latestOffset = results[0]['latest_offset']
+    }
+
+    // seeking from the latest snapshot
+    consumer.seek({ 
+        topic: KafkaConnectTopic.EventList, 
+        partition: 0,
+        offset: latestOffset
+    })
+})
+
+consumer.connect()
+consumer.subscribe({ 
+    topic: KafkaConnectTopic.EventList,
+    fromBeginning: true 
+})
 consumer.run({
     eachBatchAutoResolve: false,
     eachBatch: async ({batch, resolveOffset, heartbeat}) => { // kafka batch default 16KB
+        // check if there is no new estate event
+        if (latestOffset == batch.lastOffset()) {
+            console.log("there is no new estate event");
+            process.exit(0);
+        }
+
         // truncate table
-        let QUERY = `
+        QUERY = `
             TRUNCATE TABLE latest_estate;
         `;
         sql.query(QUERY, (err) => {
@@ -43,13 +79,15 @@ consumer.run({
         });
 
         // rebuild estates
-        let estates = {}
-        let latestOffset = 0;
         let latestEventId = 0;
         for (let message of batch.messages) {
+            // skip the handled event
+            if (message.offset == latestOffset) {
+                continue
+            }
+
             let event = parseEvent(message.value.toString())
             latestEventId = event.id
-            latestOffset = message.offset
 
             switch (event.type) {
                 case EventType.Create:
@@ -60,11 +98,14 @@ consumer.run({
                     break;
             }
 
+            console.log(message.offset)
+
             resolveOffset(message.offset)
             await heartbeat()
 
             // exit after handling the last message
             if (message.offset == batch.lastOffset()) {
+                latestOffset = batch.lastOffset()
                 break;
             }
         }
@@ -128,18 +169,3 @@ function parseEvent(event) {
         estateInfo: estateInfo
     }
 }
-
-
-const sql = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "estate_blockchain"
-});
-sql.connect(function (err) {
-    if (err) throw err;
-    console.log("SQL Connected!");
-})
-
-
-

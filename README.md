@@ -12,8 +12,13 @@
 	```
 - docker mysql & phpmyadmin 
 	- [docker](https://docs.docker.com/engine/install/ubuntu/)
+	- [mysql](https://ithelp.ithome.com.tw/articles/10272193)
 	- [mysql & phpmyadmin](https://migueldoctor.medium.com/run-mysql-phpmyadmin-locally-in-3-steps-using-docker-74eb735fa1fc)
 	- [[Docker][MySQL]Access denied for user ‘’@’172.17.0.1'(using password: YES)](https://medium.com/tech-learn-share/docker-mysql-access-denied-for-user-172-17-0-1-using-password-yes-c5eadad582d3)
+	- restart all service
+	```
+	docker restart $(docker ps -a -q)
+	```
 - java
 	```
 	sudo apt-get install default-jre
@@ -37,6 +42,7 @@
 	- [在KafkaConnect中加入Debezium
 ](https://lmlakai1024.medium.com/%E5%9C%A8kafkaconnect%E4%B8%AD%E5%8A%A0%E5%85%A5debezium-efc8cdb39519)
 	- if kafka connect does not work perfectly, please check the error message and the kafka settings to solve the problem
+	> If you facint the problem that **Either no records were produced by the task since the last offset commit, or every record has been filtered out by a transformation or dropped due to transformation or conversion errors**. 
 ## Getting Start
 1. Going into client directory and try the following command
 	```bash
@@ -45,7 +51,7 @@
 	```
 	> If you facing the problem that **Create React App requires a dependency: "babel-loader": "8.1.0"**. Try to create a **.env** file in your client directory and add **SKIP_PREFLIGHT_CHECK=true** in it. Then restart your react server
 
-## MySQL Server
+## MySQL DataBase
 1. open mysql server with the following command, then type your root password.
 	```
 	mysql -h 127.0.0.1 -u root -p

@@ -37,7 +37,7 @@ consumer.run({
         let estates = {}
         let QUERY = `
             SELECT estate_datas 
-            FROM estate_snapshot 
+            FROM latest_estate 
             ORDER BY id DESC
             LIMIT 1
         `;
@@ -52,23 +52,24 @@ consumer.run({
         let latestEventId = 0;
         for (let message of batch.messages) {
             // 5 event in each snapshot
-            if (message.offset - batch.firstOffset() >= 5) {
-                break;
-            } 
+            // if (message.offset - batch.firstOffset() >= 5) {
+            //     break;
+            // } 
 
-            let event = parseEvent(message.value.toString())
-            latestEventId = event.id
+            // let event = parseEvent(message.value.toString())
+            // latestEventId = event.id
 
-            switch (event.type) {
-                case EventType.Create:
-                    estates[event.estateID] = event.estateInfo
-                    break;
-                case EventType.Delete:
-                    delete estates[event.estateID]
-                    break;
-            }
+            // switch (event.type) {
+            //     case EventType.Create:
+            //         estates[event.estateID] = event.estateInfo
+            //         break;
+            //     case EventType.Delete:
+            //         delete estates[event.estateID]
+            //         break;
+            // }
             
             resolveOffset(message.offset)
+            console.log(message.offset)
             await heartbeat()
         }
 
@@ -76,7 +77,7 @@ consumer.run({
 
         // insert the new snapshot into db
         QUERY = `
-            INSERT INTO estate_snapshot (
+            INSERT INTO latest_estate (
                 estate_datas,
                 latest_event
             ) VALUES (
@@ -84,15 +85,12 @@ consumer.run({
                 ${latestEventId}
             )
         `;
-        sql.query(QUERY,(err) => {
-            if (err) throw err;
-            console.log("insert snapshot sucess");
-            process.exit(0);
-        })
+        // sql.query(QUERY,(err) => {
+        //     if (err) throw err;
+        //     console.log("insert snapshot success");
+        //     process.exit(0);
+        // })
     },
-}).then(() => {
-    console.log("no new message")
-    process.exit(0);
 })
 
 function parseEvent(event) {
@@ -138,8 +136,8 @@ function parseEvent(event) {
 
 const sql = mysql.createConnection({
     host: "localhost",
-    user: "mozixreality",
-    password: "ylsh510574",
+    user: "root",
+    password: "",
     database: "estate_blockchain"
 });
 sql.connect(function (err) {

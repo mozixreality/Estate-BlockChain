@@ -50,7 +50,6 @@ async function asyncCall() {
 
   myContract.events.allEvents()
   .on('data', async(event) => {
-    // sendKafkaMsg(['hey 123']);
     switch(event.event) {
       case "eventCreate":
         create(event);

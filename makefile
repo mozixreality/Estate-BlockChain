@@ -63,11 +63,11 @@ start-kafka:
 # > /dev/null 2>&1 &
 
 start-kafka-connect:
-	~/kafka/bin/connect-distributed.sh ~/kafka/config/my-kafka-connect.properties 
+	~/kafka/bin/connect-distributed.sh ~/kafka/config/connect-distributed.properties
 # > /dev/null 2>&1 &
 
 deploy-kafka-connect:
-	curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" localhost:8083/connectors/ -d '{"name": "estate_blockchain-connector", "config": {"connector.class": "io.debezium.connector.mysql.MySqlConnector", "tasks.max": "1", "database.hostname": "localhost", "database.port": "3306", "database.user": "mozixreality", "database.password": "ylsh510574", "database.server.id": "6666", "database.server.name": "KafkaConnectTopic", "database.history.kafka.topic": "schema-changes", "database.history.kafka.bootstrap.servers": "localhost:9092", "poll.interval.ms": "1000"}}'
+	curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" localhost:8083/connectors/ -d '{"name": "estate_blockchain-connector", "config": {"connector.class": "io.debezium.connector.mysql.MySqlConnector", "tasks.max": "1", "database.hostname": "127.0.0.1", "database.port": "3306", "database.user": "root", "database.password": "", "database.server.id": "6666", "database.server.name": "KafkaConnectTopic", "database.history.kafka.topic": "schema-changes", "database.history.kafka.bootstrap.servers": "localhost:9092", "poll.interval.ms": "1000"}}'
 
 list-kafka-topics:
 	~/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
