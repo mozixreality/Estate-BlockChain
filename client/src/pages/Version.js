@@ -19,7 +19,6 @@ class Version extends Component{
             estates: [],
             polyList: [],
             estateInfo: null,
-            latestEventId: 0,
 
             curEvent: null,
             nextEvent: null,
@@ -160,9 +159,9 @@ class Version extends Component{
 
     nextEvent = async () => {
         const backendServer = this.context.BackendServer + ":" + this.context.BackendServerPort
-        const {curEvent, nextEvent, latestEventId, estates, polyList} = this.state
-        console.log("event", curEvent, nextEvent, latestEventId)
-        if (nextEvent == null || (curEvent != null && curEvent.event_id >= latestEventId)) { // check if current event is the first one or not
+        const {curEvent, nextEvent, estates, polyList} = this.state
+        console.log("event", curEvent, nextEvent)
+        if (nextEvent == null) { // check if current event is the first one or not
             alert("no Next event QQ.");
             return;
         }
@@ -273,10 +272,9 @@ class Version extends Component{
             windowWidth: window.innerWidth - 50,
             estates: latestEstates,
             polyList: polyList,
-            latestEventId: latestEventId,
             curEvent: curEvent,
         });
-        console.log(latestEventId, latestEstates, curEvent)
+        console.log(latestEstates, curEvent)
         //畫圖 in cadastral資料夾
         createMap(600,800,this,polyList);
     };

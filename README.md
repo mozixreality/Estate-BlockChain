@@ -42,7 +42,7 @@
 	- [在KafkaConnect中加入Debezium
 ](https://lmlakai1024.medium.com/%E5%9C%A8kafkaconnect%E4%B8%AD%E5%8A%A0%E5%85%A5debezium-efc8cdb39519)
 	- if kafka connect does not work perfectly, please check the error message and the kafka settings to solve the problem
-	> If you facint the problem that **Either no records were produced by the task since the last offset commit, or every record has been filtered out by a transformation or dropped due to transformation or conversion errors**. 
+	> If you facint the problem that **org.apache.kafka.connect.errors.ConnectException: Failed to authenticate to the MySQL database**. try [this](https://stackoverflow.com/questions/66392257/error-with-using-debezium-connector-for-kafka-and-mysql)
 ## Getting Start
 1. Going into client directory and try the following command
 	```bash
