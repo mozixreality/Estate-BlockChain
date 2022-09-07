@@ -98,8 +98,6 @@ consumer.run({
                     break;
             }
 
-            console.log(message.offset)
-
             resolveOffset(message.offset)
             await heartbeat()
 
