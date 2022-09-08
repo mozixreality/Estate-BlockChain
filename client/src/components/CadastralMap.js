@@ -12,7 +12,7 @@ function createMap(height,width,that,polyList){
     //     .domain([0, 100])
     //     .range([height, 0]) 
     
-    let moveX = 400,moveY = -900;
+    let moveX = 500,moveY = -900;
     let mouseX,mouseY;
     let detX = 0,detY = 0;
     let dragFlag = 0;
@@ -31,7 +31,7 @@ function createMap(height,width,that,polyList){
     d3.select("#esSvg").append("svg")
         .attr("width",width)
         .attr("height",height)
-        .attr("viewBox",[400,-900,width,height])
+        .attr("viewBox",[500,-900,width,height])
         .attr("style", "outline: 3px solid black;");
     //  .attr("viewBox",[0,0,width,height])
     let drag = d3.drag()  
