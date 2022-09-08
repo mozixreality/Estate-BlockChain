@@ -9,9 +9,7 @@ class Version extends Component{
 
     constructor(props) {
         super(props);
-        this.state = {
-            windowWidth: 800,
-    
+        this.state = {    
             searchDate:'',
             estates: [],
             polyList: [],
@@ -67,7 +65,7 @@ class Version extends Component{
             polyList: polyList
         });
         //畫圖 in cadastral資料夾
-        createMap(600,800,this,polyList);
+        createMap(600,700,this,polyList);
 
     }
 
@@ -99,7 +97,7 @@ class Version extends Component{
                     }
                 
                 }
-                createMap(600,800,this,polyList);
+                createMap(600,700,this,polyList);
                 break;
             case 'eventDelete':
                 let eventDelete = {
@@ -120,7 +118,7 @@ class Version extends Component{
                 })
                 estates[estate_id] = EstateFormat.getEstateInfoFormat(estate)
                 // //畫圖 in cadastral資料夾
-                createMap(600,800,this,polyList);
+                createMap(600,700,this,polyList);
                 break;
             case 'eventMerge':
                 console.log({
@@ -182,7 +180,7 @@ class Version extends Component{
                 })
                 estates[eventCreate.estate_id] = EstateFormat.getEventEstateInfoFormat(curEventData['returnValues'])
                 //畫圖 in cadastral資料夾
-                createMap(600,800,this,polyList);
+                createMap(600,700,this,polyList);
                 break;
             case 'eventDelete':
                 let eventDelete = {
@@ -198,7 +196,7 @@ class Version extends Component{
                     }
                 
                 }
-                createMap(600,800,this,polyList);
+                createMap(600,700,this,polyList);
                 break;
             case 'eventMerge':
                 console.log({
@@ -264,15 +262,21 @@ class Version extends Component{
         }).then((myjson) => {
             return myjson[0];
         }).then();
+
+        let nextEvent = await fetch(backendServer + `/getEvent?event_id=${latestEventId + 1}`).then((response) => {
+            return response.json();
+        }).then((myjson) => {
+            return myjson[0];
+        }).then();
     
         this.setState({
-            windowWidth: window.innerWidth - 50,
             estates: latestEstates,
             polyList: polyList,
             curEvent: curEvent,
+            nextEvent: nextEvent,
         });
         //畫圖 in cadastral資料夾
-        createMap(600,800,this,polyList);
+        createMap(600,700,this,polyList);
     };
 
     d3CLick = async (id) => {
