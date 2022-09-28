@@ -356,23 +356,33 @@ class Version extends Component{
                         </ul>
                     )
                 case 'eventMerge':
+                    let parents = eventData['returnValues']['parentId']
+                    let parentsStr = ""
+                    for(let i=0;i<parents.length;i++) {
+                        parentsStr += parents[i] + ", "
+                    }
                     return (
                         <ul className="list-group d-flex justify-content-between align-items-center" style={{flexDirection: 'column'}}>
                             <li className="list-group-item list-group-item-action list-group-item-primary">Event Merge</li>
                             <li className="list-group-item list-group-item-action">Operation ID: {eventData['returnValues']['operationId']}</li>
                             <li className="list-group-item list-group-item-action">Operation Type: {eventData['returnValues']['operationType']}</li>
-                            <li className="list-group-item list-group-item-action">Parent ID: {eventData['returnValues']['parentId']}</li>
+                            <li className="list-group-item list-group-item-action">Parent ID: {parentsStr}</li>
                             <li className="list-group-item list-group-item-action">Child ID: {eventData['returnValues']['childId']}</li>
                         </ul>
                     )
                 case 'eventSplit':
+                    let childs = eventData['returnValues']['childId']
+                    let childsStr = ""
+                    for(let i=0;i<childs.length;i++) {
+                        childsStr += childs[i] + ", "
+                    }
                     return (
                         <ul className="list-group d-flex justify-content-between align-items-center" style={{flexDirection: 'column'}}>
                             <li className="list-group-item list-group-item-action list-group-item-warning">Event Split</li>
                             <li className="list-group-item list-group-item-action">Operation ID: {eventData['returnValues']['operationId']}</li>
                             <li className="list-group-item list-group-item-action">Operation Type: {eventData['returnValues']['operationType']}</li>
                             <li className="list-group-item list-group-item-action">Parent ID: {eventData['returnValues']['parentId']}</li>
-                            <li className="list-group-item list-group-item-action">Child ID: {eventData['returnValues']['childId']}</li>
+                            <li className="list-group-item list-group-item-action">Child ID: {childsStr}</li>
                         </ul>
                     )
                 default:
@@ -439,10 +449,10 @@ class Version extends Component{
                             display: 'flex',
                             justifyContent: 'space-between'
                         }}>
-                            <ul className="list-group" style={{minWidth: '200px'}}>
+                            <ul className="list-group" style={{minWidth: '200px', maxWidth: 300}}>
                                 { this.showEvent(this.state.curEvent) }
                             </ul>
-                            <ul className="list-group" style={{minWidth: '200px'}}>
+                            <ul className="list-group" style={{minWidth: '200px', maxWidth: 300}}>
                                 { this.showEvent(this.state.nextEvent) }
                             </ul>
                         </div>

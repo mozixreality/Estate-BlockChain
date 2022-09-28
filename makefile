@@ -19,6 +19,9 @@ help:
 	@echo "make deploy-kafka-connect: deploy kafka connect with RESTful API"
 	@echo "make list-kafka-topics: list kafka topics"
 	@echo "make listen-topic: listen certain kafka topic"
+	@echo "[ ====== event sourcing method ====== ]"
+	@echo "make rebuild: rebuilding latest estate"
+	@echo "make snapshot: snapshot the latest estate"
 
 init:
 	geth --datadir $(BLOCK_DATA) init genesis.json
@@ -48,23 +51,18 @@ start-geth:
 
 start-backend:
 	cd client/src/backend && node server.js
-# > /dev/null 2>&1 &
 
 start-frontend:
 	cd client && npm start
-# > /dev/null 2>&1 &
 
 start-zookeeper:
-	~/kafka/bin/zookeeper-server-start.sh ~/kafka/config/zookeeper.properties 
-# > /dev/null 2>&1 &
+	~/kafka/bin/zookeeper-server-start.sh ~/kafka/config/zookeeper.properties > log/zookeeper.log 2>&1 &
 
 start-kafka:
-	~/kafka/bin/kafka-server-start.sh ~/kafka/config/server.properties 
-# > /dev/null 2>&1 &
+	~/kafka/bin/kafka-server-start.sh ~/kafka/config/server.properties > log/kafka.log 2>&1 &
 
 start-kafka-connect:
-	~/kafka/bin/connect-distributed.sh ~/kafka/config/connect-distributed.properties
-# > /dev/null 2>&1 &
+	~/kafka/bin/connect-distributed.sh ~/kafka/config/connect-distributed.properties > log/kafka-connect.log 2>&1 &
 
 deploy-kafka-connect:
 	curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" localhost:8083/connectors/ -d '{"name": "estate_blockchain-connector", "config": {"connector.class": "io.debezium.connector.mysql.MySqlConnector", "tasks.max": "1", "database.hostname": "localhost", "database.port": "3306", "database.user": "root", "database.password": "", "database.server.id": "6666", "database.server.name": "KafkaConnectTopic", "database.history.kafka.topic": "schema-changes", "database.history.kafka.bootstrap.servers": "localhost:9092", "poll.interval.ms": "1000"}}'
@@ -78,3 +76,9 @@ ifdef topic
 else
 	~/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic KafkaConnectTopic.estate_blockchain.operation_list --from-beginning
 endif	
+
+rebuild:
+	node event_sourcing/rebuild.js
+
+snapshot:
+	node event_sourcing/snapshot.js
